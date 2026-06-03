@@ -1,0 +1,1400 @@
+{% extends "base.html" %}
+
+{% block title %}数据大屏 - AI安全隐患识别系统{% endblock %}
+
+{% block content %}
+<style>
+    /* 玻璃态效果基础样式 */
+    .glass-card {
+        background: rgba(13, 27, 62, 0.4);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(6, 182, 212, 0.1);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
+    
+    .glass-card-hover {
+        transition: all 0.3s ease;
+    }
+    
+    .glass-card-hover:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 40px 0 rgba(6, 182, 212, 0.2);
+        border-color: rgba(6, 182, 212, 0.3);
+    }
+    
+    /* 数字字体样式 */
+    .digital-font {
+        font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+    }
+    
+    /* 现代化字体 */
+    .modern-font {
+        font-family: 'Microsoft YaHei', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+    }
+    
+    /* 渐变文字效果 */
+    .gradient-text {
+        background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 50%, #8b5cf6 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    /* 磨砂玻璃按钮 */
+    .glass-btn {
+        background: rgba(6, 182, 212, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(6, 182, 212, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-btn:hover {
+        background: rgba(6, 182, 212, 0.2);
+        border-color: rgba(6, 182, 212, 0.5);
+        box-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
+    }
+</style>
+
+<div class="min-h-screen flex flex-col p-3 space-y-3 overflow-hidden">
+    <!-- 顶部标题栏 -->
+    <header class="glass-card rounded-2xl relative overflow-hidden" style="background: linear-gradient(135deg, rgba(13, 27, 62, 0.6) 0%, rgba(25, 46, 91, 0.4) 50%, rgba(13, 27, 62, 0.6) 100%);">
+        <!-- 顶部光效 -->
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-60"></div>
+        
+        <div class="relative flex justify-between items-center px-6 py-2">
+            <!-- 左上角管理后台按钮 -->
+            <a href="/admin" class="glass-btn px-3 py-1.5 rounded-xl font-bold text-xs text-cyan-400 modern-font flex items-center gap-2">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span data-i18n="dashboard.admin_panel">管理后台</span>
+            </a>
+            
+            <!-- 中央标题 -->
+            <div class="flex-1 flex items-center justify-center gap-3">
+                <div class="flex items-center gap-1.5">
+                    <div class="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 animate-pulse"></div>
+                    <div class="w-2 h-2 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 animate-pulse" style="animation-delay: 0.1s;"></div>
+                    <div class="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 animate-pulse" style="animation-delay: 0.2s;"></div>
+                </div>
+                
+                <h1 class="text-3xl font-bold gradient-text modern-font" style="letter-spacing: 2px;">
+                    {{ dashboard_title|default('AI安全隐患识别系统') }}
+                </h1>
+                
+                <div class="flex items-center gap-1.5">
+                    <div class="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 animate-pulse"></div>
+                    <div class="w-2 h-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 animate-pulse" style="animation-delay: 0.1s;"></div>
+                    <div class="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 animate-pulse" style="animation-delay: 0.2s;"></div>
+                </div>
+            </div>
+            
+            <!-- 右侧时间和状态 -->
+            <div class="text-right">
+                <div class="text-sm text-cyan-400 digital-font" id="current-time"></div>
+                <div class="text-xs text-gray-300 modern-font flex items-center justify-end gap-1.5">
+                    <span class="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
+                    <span data-i18n="dashboard.system_online">系统在线</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主内容区域 -->
+    <div class="flex-1 grid grid-cols-12 gap-3 min-h-0">
+        <!-- 左侧：趋势/排行/统计 -->
+        <div class="col-span-3 flex flex-col space-y-3 overflow-hidden">
+            <!-- 最近7日告警趋势 -->
+            <section class="glass-card glass-card-hover rounded-2xl p-3 flex flex-col" style="height: 200px;">
+                <div class="flex justify-between items-center mb-2">
+                    <h3 class="text-xs font-semibold text-gray-300 modern-font" data-i18n="dashboard.trend_title">最近7日告警趋势</h3>
+                    <span class="text-xs text-gray-500" data-i18n="common.unit_count">单位：次</span>
+                </div>
+                <div class="flex-1 min-h-0">
+                    <div id="alert-chart" class="h-full"></div>
+                </div>
+            </section>
+
+            <!-- 告警类型排行 - 固定高度，支持滚动 -->
+            <section class="glass-card glass-card-hover rounded-2xl p-3 flex flex-col" style="height: 230px;">
+                <div class="flex justify-between items-center mb-2">
+                    <h3 class="text-xs font-semibold text-gray-300 modern-font" data-i18n="dashboard.ranking_title">告警类型排行</h3>
+                    <span class="text-xs text-gray-500" data-i18n="dashboard.ranking_subtitle">从多到少</span>
+                </div>
+                <div id="alert-ranking" class="space-y-2 overflow-y-auto pr-2 flex-1 scrollbar-thin scrollbar-thumb-cyan-900 scrollbar-track-gray-900"></div>
+            </section>
+
+            <!-- 处理进度环形图 - 增加标注线和图例 -->
+            <section class="glass-card glass-card-hover rounded-2xl p-3 flex flex-col flex-1">
+                <h3 class="text-xs font-semibold text-gray-300 modern-font mb-3" data-i18n="dashboard.progress_title">处理进度</h3>
+                <div class="flex items-center justify-center mt-1 mb-2">
+                    <div id="processing-chart" style="width: 100%; height: 182px;"></div>
+                </div>
+                <!-- 图例 -->
+                <div class="flex items-center justify-center gap-4 mt-6 pb-1">
+                    <div class="flex items-center gap-2">
+                        <div class="w-3 h-3 rounded" style="background: linear-gradient(135deg, #10b981, #059669);"></div>
+                        <span class="text-xs text-gray-400 modern-font" data-i18n="dashboard.processed">已处理</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-3 h-3 rounded" style="background: linear-gradient(135deg, #ef4444, #dc2626);"></div>
+                        <span class="text-xs text-gray-400 modern-font" data-i18n="dashboard.unprocessed">未处理</span>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- 中间：视频监控 -->
+        <div class="col-span-7 flex flex-col space-y-3 min-h-0">
+            <!-- 视频区域 -->
+            <section class="glass-card rounded-2xl p-3 flex flex-col flex-1 min-h-0">
+                <!-- 视频信息条 -->
+                <div class="glass-card rounded-xl px-3 py-1.5 mb-2 flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+                            </svg>
+                            <span class="text-xs text-gray-300 modern-font" data-i18n="dashboard.algorithms">算法：</span>
+                            <span class="text-lg font-bold text-cyan-400 digital-font" id="algorithm-count">0</span>
+                        </div>
+                        <div class="w-px h-5 bg-gray-700"></div>
+                        <div class="flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                            <span class="text-xs text-gray-300 modern-font" data-i18n="dashboard.cameras">摄像头：</span>
+                            <span class="text-lg font-bold text-green-400 digital-font" id="online-cameras">0</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex flex-wrap justify-between items-center gap-2 mb-2">
+                    <div>
+                        <h3 class="text-base font-bold gradient-text modern-font" data-i18n="dashboard.monitor_title">📹 实时监控中心</h3>
+                        <p class="text-xs text-gray-400" data-i18n="dashboard.monitor_desc">从后台添加的视频流中选择需要展示的画面</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-1.5">
+                        <button class="glass-btn px-3 py-1.5 rounded-xl text-cyan-400 font-bold text-xs modern-font" onclick="openVideoSelector()">
+                            <span data-i18n="dashboard.select_video">选择视频</span>
+                        </button>
+                        <div class="flex items-center space-x-1.5">
+                            <span class="text-xs text-gray-400 modern-font" data-i18n="dashboard.layout">布局</span>
+                            <div class="flex space-x-1">
+                                <button class="layout-btn glass-btn px-2 py-1 rounded-lg text-xs font-bold digital-font"
+                                        onclick="setVideoLayout(1)" data-layout="1">1</button>
+                                <button class="layout-btn glass-btn px-2 py-1 rounded-lg text-xs font-bold digital-font"
+                                        onclick="setVideoLayout(4)" data-layout="4">4</button>
+                                <button class="layout-btn glass-btn px-2 py-1 rounded-lg text-xs font-bold digital-font"
+                                        onclick="setVideoLayout(9)" data-layout="9">9</button>
+                                <button class="layout-btn glass-btn px-2 py-1 rounded-lg text-xs font-bold digital-font"
+                                        onclick="setVideoLayout(16)" data-layout="16">16</button>
+                            </div>
+                        </div>
+                        <button class="glass-btn px-2 py-1.5 rounded-lg text-xs modern-font text-gray-300" onclick="refreshSelectedStreams()" data-i18n="common.refresh">刷新</button>
+                        <button class="glass-btn px-2 py-1.5 rounded-lg text-xs modern-font text-gray-300" onclick="enterFullscreen()" data-i18n="dashboard.fullscreen">全屏</button>
+                    </div>
+                </div>
+
+                <div class="relative bg-black rounded-2xl border border-cyan-900/30 flex-1 min-h-[240px] overflow-visible shadow-2xl">
+                    <div id="video-grid" class="grid gap-1.5 h-full p-1.5"></div>
+                </div>
+            </section>
+
+            <!-- 底部指标卡片 -->
+            <section class="grid grid-cols-2 lg:grid-cols-4 gap-2 shrink-0" id="bottom-metrics">
+                <div class="glass-card glass-card-hover rounded-xl p-2 text-center">
+                    <p class="text-xs text-gray-400 modern-font mb-1" data-i18n="dashboard.video_input">接入视频</p>
+                    <p class="text-3xl font-bold gradient-text digital-font" id="metric-video-enabled">0</p>
+                    <p class="text-xs text-gray-500 modern-font mt-1"><span data-i18n="dashboard.limit">上限</span> <span id="metric-video-limit">{{ max_channels|default(6) }}</span></p>
+                </div>
+                <div class="glass-card glass-card-hover rounded-xl p-2 text-center">
+                    <p class="text-xs text-gray-400 modern-font mb-1" data-i18n="dashboard.today_alerts">今日告警</p>
+                    <p class="text-3xl font-bold text-cyan-400 digital-font" id="metric-today-total">0</p>
+                    <p class="text-xs text-gray-500 modern-font mt-1" data-i18n="dashboard.realtime_update">实时更新</p>
+                </div>
+                <div class="glass-card glass-card-hover rounded-xl p-2 text-center">
+                    <p class="text-xs text-gray-400 modern-font mb-1" data-i18n="dashboard.handled">已处理</p>
+                    <p class="text-3xl font-bold text-green-400 digital-font" id="metric-today-done">0</p>
+                    <p class="text-xs text-gray-500 modern-font mt-1" data-i18n="dashboard.incl_confirmed">含确认/复核</p>
+                </div>
+                <div class="glass-card glass-card-hover rounded-xl p-2 text-center">
+                    <p class="text-xs text-gray-400 modern-font mb-1" data-i18n="dashboard.pending">未处理</p>
+                    <p class="text-3xl font-bold text-red-400 digital-font" id="metric-today-pending">0</p>
+                    <p class="text-xs text-gray-500 modern-font mt-1" data-i18n="dashboard.awaiting_confirm">待值守确认</p>
+                </div>
+            </section>
+            
+            <!-- 底部安全运行统计 -->
+            <section class="glass-card rounded-xl px-4 py-2 shrink-0">
+                <div class="flex items-center justify-around">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                        <div>
+                            <p class="text-xs text-gray-400 modern-font" data-i18n="dashboard.risks_avoided">今日避免风险</p>
+                            <p class="text-xl font-bold text-yellow-400 digital-font"><span id="risk-avoided">0</span> <span data-i18n="common.times">起</span></p>
+                        </div>
+                    </div>
+                    <div class="w-px h-10 bg-gray-700"></div>
+                    <div class="flex items-center gap-2">
+                        <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div>
+                            <p class="text-xs text-gray-400 modern-font" data-i18n="dashboard.safe_days">连续安全运行</p>
+                            <p class="text-xl font-bold text-green-400 digital-font"><span id="safe-days">0</span> <span data-i18n="common.days">天</span></p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- 右侧：最新告警 -->
+        <div class="col-span-2 glass-card rounded-2xl p-3 flex flex-col overflow-hidden">
+            <div class="flex justify-between items-center mb-2">
+                <h3 class="text-xs font-semibold text-gray-300 modern-font" data-i18n="dashboard.latest_alerts">最新告警</h3>
+                <button class="text-xs text-cyan-400 hover:text-cyan-300 transition-colors modern-font" onclick="fetchLogs()" data-i18n="common.refresh">刷新</button>
+            </div>
+            <div class="space-y-2 overflow-y-auto pr-2 flex-1" id="logs-container"></div>
+        </div>
+    </div>
+</div>
+
+<!-- 视频选择器 -->
+<div id="videoSelectorModal" class="fixed inset-0 bg-black bg-opacity-80 hidden z-50 items-center justify-center p-4 backdrop-blur-sm">
+    <div class="glass-card rounded-3xl w-full max-w-5xl max-h-[85vh] flex flex-col overflow-hidden">
+        <div class="flex justify-between items-center p-6 border-b border-cyan-900/30">
+            <div>
+                <h3 class="text-2xl font-bold gradient-text modern-font" data-i18n="dashboard.select_sources">选择视频源</h3>
+                <p class="text-sm text-gray-400 modern-font mt-1" data-i18n="dashboard.select_sources_desc">最多可选择16路视频源用于数据大屏展示</p>
+            </div>
+            <button class="glass-btn w-10 h-10 rounded-xl flex items-center justify-center text-gray-400 hover:text-white text-2xl" onclick="closeVideoSelector()">✕</button>
+        </div>
+        <div class="px-6 py-3 text-sm text-gray-400 modern-font"><span data-i18n="dashboard.selected_count">已选择</span> <span id="selected-count" class="text-cyan-400 font-bold digital-font">0</span> / 16</div>
+        <div id="video-selector-list" class="px-6 pb-6 overflow-y-auto grid gap-4 md:grid-cols-2 lg:grid-cols-3 flex-1"></div>
+        <div class="p-6 border-t border-cyan-900/30 flex justify-end space-x-3">
+            <button class="glass-btn px-6 py-3 rounded-xl text-gray-300 modern-font" onclick="closeVideoSelector()" data-i18n="common.cancel">取消</button>
+            <button class="px-6 py-3 rounded-xl font-bold modern-font" style="background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%); color: white;" onclick="applyVideoSelection()" data-i18n="common.apply">应用</button>
+        </div>
+    </div>
+</div>
+
+<!-- 全屏展示 -->
+<div id="videoFullscreenOverlay" class="fixed inset-0 bg-black bg-opacity-95 hidden z-40">
+        <div class="w-full h-full p-6 flex flex-col">
+            <div class="flex justify-between items-center mb-4 text-white">
+                <h4 class="text-lg font-bold modern-font" data-i18n="dashboard.fullscreen_title">全屏监控</h4>
+                <button class="glass-btn px-4 py-2 rounded-xl text-red-400 modern-font" onclick="exitFullscreen()" data-i18n="dashboard.exit_fullscreen">退出全屏</button>
+            </div>
+        <div id="fullscreen-grid" class="flex-1"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/alert-system.js') }}"></script>
+<script id="detection-types-json" type="application/json">{{ detection_types | tojson | safe }}</script>
+<script>
+const layoutConfig = {
+    1: { cols: 1, rows: 1 },
+    4: { cols: 2, rows: 2 },
+    9: { cols: 3, rows: 3 },
+    16: { cols: 4, rows: 4 }
+};
+const MAX_VIDEO_SELECTION = 16;
+const VIDEO_INPUT_LIMIT = 32;
+// algorithmLabels 动态从i18n获取（在i18n初始化后调用）
+function getAlgorithmLabels() {
+    return {
+        helmet_detection: t('algo.helmet_detection'),
+        vest_detection: t('algo.vest_detection'),
+        fall_detection: t('algo.fall_detection'),
+        mask_detection: t('algo.mask_detection'),
+        smoke_detection: t('algo.smoke_detection'),
+        fire_detection: t('algo.fire_detection'),
+        intrusion_detection: t('algo.intrusion_detection'),
+        theft_detection: t('algo.theft_detection'),
+        crowd_gathering_detection: t('algo.crowd_gathering_detection'),
+        person_absence_detection: t('algo.person_absence_detection'),
+        vehicle_parking_detection: t('algo.vehicle_parking_detection'),
+        fire_extinguisher_absence_detection: t('algo.fire_extinguisher_absence_detection'),
+        reagent_bottle_detection: t('algo.reagent_bottle_detection'),
+        camera_occlusion_detection: t('algo.camera_occlusion_detection'),
+        fight_detection: t('algo.fight_detection'),
+        glove_detection: t('algo.glove_detection'),
+        work_clothes_detection: t('algo.work_clothes_detection'),
+        safehat_vest_detection: t('algo.safehat_vest_detection'),
+        gas_cylinder_tilt_detection: t('algo.gas_cylinder_tilt_detection'),
+        box_object_detection: t('algo.box_object_detection'),
+        crack_detection: t('algo.crack_detection'),
+        dog_detection: t('algo.dog_detection'),
+        cat_detection: t('algo.cat_detection'),
+        fatigue_driving_detection: t('algo.fatigue_driving_detection'),
+        trash_detection: t('algo.trash_detection'),
+        electric_bicycle_detection: t('algo.electric_bicycle_detection')
+    };
+}
+// 保持向后兼容的变量（动态代理）
+const algorithmLabels = new Proxy({}, {
+    get(_, key) { return getAlgorithmLabels()[key] || key; }
+});
+
+const detectionTypesDataEl = document.getElementById('detection-types-json');
+let detectionTypes = {};
+try {
+    detectionTypes = detectionTypesDataEl ? JSON.parse(detectionTypesDataEl.textContent || '{}') : {};
+    // 通过i18n翻译覆盖检测类型名称
+    function applyDetectionTypeTranslations() {
+        const typeMap = {
+            'helmet_violation': 'alert_type.helmet_violation',
+            'vest_violation': 'alert_type.vest_violation',
+            'fall_violation': 'alert_type.fall_violation',
+            'mask_violation': 'alert_type.mask_violation',
+            'smoke_violation': 'alert_type.smoke_violation',
+            'fire_violation': 'alert_type.fire_violation',
+            'intrusion_violation': 'alert_type.intrusion_violation',
+            'theft_violation': 'alert_type.theft_violation',
+            'crowd_gathering_violation': 'alert_type.crowd_gathering_violation',
+            'person_absence_violation': 'alert_type.person_absence_violation',
+            'vehicle_parking_violation': 'alert_type.vehicle_parking_violation',
+            'fire_extinguisher_absence_violation': 'alert_type.fire_extinguisher_absence_violation',
+        };
+        Object.keys(typeMap).forEach(k => {
+            if (detectionTypes[k]) detectionTypes[k].name = t(typeMap[k]);
+        });
+    }
+    applyDetectionTypeTranslations();
+
+    detectionTypes['reagent_bottle_violation'] = {
+        name: t('alert_type.reagent_bottle_violation'),
+        icon: '🧪',
+        color: '#9933ff'
+    };
+    detectionTypes['camera_occlusion_violation'] = {
+        name: t('alert_type.camera_occlusion_violation'),
+        icon: '📵',
+        color: '#ff0000'
+    };
+    detectionTypes['fight_violation'] = {
+        name: t('alert_type.fight_violation'),
+        icon: '👊',
+        color: '#ff0000'
+    };
+    detectionTypes['glove_violation'] = {
+        name: t('alert_type.glove_violation'),
+        icon: '🧤',
+        color: '#ff4444'
+    };
+    detectionTypes['work_clothes_violation'] = {
+        name: t('alert_type.work_clothes_violation'),
+        icon: '👔',
+        color: '#ff4444'
+    };
+    detectionTypes['gas_cylinder_tilt_violation'] = {
+        name: t('alert_type.gas_cylinder_tilt_violation'),
+        icon: '🧯',
+        color: '#ff4444'
+    };
+    detectionTypes['box_object_violation'] = {
+        name: t('alert_type.box_object_violation'),
+        icon: '📦',
+        color: '#ff4444'
+    };
+    detectionTypes['safehat_vest_no_helmet_violation'] = {
+        name: t('alert_type.safehat_vest_no_helmet_violation'),
+        icon: '⚠️',
+        color: '#ff4444'
+    };
+    detectionTypes['safehat_vest_no_vest_violation'] = {
+        name: t('alert_type.safehat_vest_no_vest_violation'),
+        icon: '⚠️',
+        color: '#ff6b35'
+    };
+    detectionTypes['safehat_vest_entry'] = {
+        name: t('alert_type.safehat_vest_entry'),
+        icon: '✅',
+        color: '#00c853'
+    };
+    detectionTypes['crack_violation'] = {
+        name: t('alert_type.crack_violation'),
+        icon: '⚡',
+        color: '#ff6600'
+    };
+    detectionTypes['dog_violation'] = {
+        name: t('alert_type.dog_violation'),
+        icon: '🐕',
+        color: '#ff9900'
+    };
+    detectionTypes['cat_violation'] = {
+        name: t('alert_type.cat_violation'),
+        icon: '🐱',
+        color: '#ff69b4'
+    };
+    detectionTypes['fatigue_driving_violation'] = {
+        name: t('alert_type.fatigue_driving_violation'),
+        icon: '😴',
+        color: '#ff6347'
+    };
+    detectionTypes['trash_violation'] = {
+        name: t('alert_type.trash_violation'),
+        icon: '🗑️',
+        color: '#ff9500'
+    };
+    detectionTypes['electric_bicycle_violation'] = {
+        name: t('alert_type.electric_bicycle_violation'),
+        icon: '🛴',
+        color: '#ffa500'
+    };
+} catch (error) {
+    console.error('解析检测类型配置失败:', error);
+}
+
+let alertChart = null;
+let videoSources = [];
+let selectedVideoSourceIds = [];
+let tempVideoSelection = [];
+let currentVideoLayout = 4;
+let streamCacheBuster = Date.now();
+let streamRefreshCooldown = false;
+let latestStatsData = null;
+let latestLogs = [];
+let latestAnnouncementLogs = [];
+let latestAlertMeta = {};
+let hasLoadedAlerts = false;
+let isFullscreenOverlayActive = false;
+
+function updateTime() {
+    const now = new Date();
+    const locale = (window.i18n && window.i18n.lang() === 'en-US') ? 'en-US' : 'zh-CN';
+    const timeString = now.toLocaleString(locale, {
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', second: '2-digit'
+    });
+    const target = document.getElementById('current-time');
+    if (target) target.textContent = timeString;
+}
+
+function fetchStats() {
+    fetch('/api/stats')
+        .then((resp) => resp.json())
+        .then((data) => {
+            latestStatsData = data;
+            updateTrendChart(data);
+            renderAlertRanking(data);
+            updateAlertSummary(data);
+            updateBottomSummary();
+        })
+        .catch((error) => console.error('获取统计数据失败:', error));
+}
+
+function updateTrendChart(statsData) {
+    const chartDom = document.getElementById('alert-chart');
+    if (!chartDom) return;
+
+    if (!alertChart) {
+        alertChart = echarts.init(chartDom);
+        window.addEventListener('resize', () => alertChart && alertChart.resize());
+    }
+
+    const trend = statsData.trend || { timestamps: [] };
+    
+    // 动态构建类型配置 - 只显示violation类型且有数据的
+    const extendedTypes = {};
+    Object.keys(detectionTypes).forEach((type) => {
+        if (type.includes('violation') && trend[type] && trend[type].length > 0) {
+            const typeConfig = detectionTypes[type];
+            extendedTypes[type] = {
+                name: typeConfig.name || type,
+                color: typeConfig.color || '#ff4444'
+            };
+        }
+    });
+    
+    // 如果没有任何violation数据，显示空图表
+    if (Object.keys(extendedTypes).length === 0) {
+        alertChart.setOption({
+            backgroundColor: 'transparent',
+            title: {
+                text: t('dashboard.no_alert_data'),
+                left: 'center',
+                top: 'center',
+                textStyle: { color: '#9ca3af', fontSize: 14 }
+            },
+            xAxis: { show: false },
+            yAxis: { show: false }
+        });
+        return;
+    }
+
+    const series = [];
+    const legendData = [];
+    Object.entries(extendedTypes).forEach(([type, config]) => {
+        const points = trend[type];
+        if (!points || !points.length) return;
+        legendData.push(config.name);
+        const isViolation = type.includes('violation');
+        series.push({
+            name: config.name,
+            type: 'line',
+            smooth: true,
+            data: points,
+            lineStyle: { color: config.color, width: 2, type: isViolation ? 'dashed' : 'solid' },
+            itemStyle: { color: config.color },
+            areaStyle: isViolation ? null : {
+                color: {
+                    type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+                    colorStops: [
+                        { offset: 0, color: hexToRgba(config.color, 0.25) },
+                        { offset: 1, color: hexToRgba(config.color, 0.05) }
+                    ]
+                }
+            },
+            symbol: isViolation ? 'triangle' : 'circle',
+            symbolSize: isViolation ? 8 : 5
+        });
+    });
+
+    alertChart.setOption({
+        backgroundColor: 'transparent',
+        tooltip: {
+            trigger: 'axis',
+            backgroundColor: 'rgba(0,0,0,0.85)',
+            borderColor: '#00d4ff',
+            textStyle: { color: '#fff', fontSize: 12 },
+            axisPointer: {
+                type: 'cross',
+                label: {
+                    backgroundColor: '#00d4ff'
+                }
+            }
+        },
+        legend: {
+            show: false  // 隐藏图例
+        },
+        grid: { left: '8%', right: '4%', top: '8%', bottom: '12%', containLabel: false },
+        xAxis: {
+            type: 'category',
+            data: trend.timestamps || [],
+            axisLine: { lineStyle: { color: '#00d4ff' } },
+            axisLabel: { 
+                color: '#9ca3af',
+                fontSize: 9,
+                rotate: 0
+            },
+            boundaryGap: false
+        },
+        yAxis: {
+            type: 'value',
+            axisLine: { lineStyle: { color: '#00d4ff' } },
+            axisLabel: { 
+                color: '#9ca3af',
+                fontSize: 10
+            },
+            splitLine: { 
+                lineStyle: { 
+                    color: '#1f2937',
+                    type: 'dashed'
+                } 
+            },
+            name: t('dashboard.y_axis_label'),
+            nameTextStyle: { color: '#9ca3af', fontSize: 10 },
+            minInterval: 1,  // 确保纵轴步长至少为1
+            min: 0,  // 从0开始
+            splitNumber: 4  // 建议分成4段
+        },
+        series
+    });
+}
+
+function hexToRgba(hex, alpha) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function renderAlertRanking(data) {
+    const container = document.getElementById('alert-ranking');
+    if (!container) return;
+
+    const summary = data.summary || {};
+    
+    // 从视频源中获取所有已启用的算法
+    const enabledAlgorithms = new Set();
+    (videoSources || []).forEach(source => {
+        if (source.enabled !== false && source.algorithms) {
+            source.algorithms.forEach(alg => {
+                if (alg.endsWith('_detection')) {
+                    const baseName = alg.replace('_detection', '');
+                    if (baseName === 'helmet' || baseName === 'vest' || baseName === 'fall' || 
+                        baseName === 'mask' || baseName === 'intrusion' || 
+                        baseName === 'theft' ||
+                        baseName === 'smoke' || baseName === 'fire' || 
+                        baseName === 'crowd_gathering' || baseName === 'person_absence' || 
+                        baseName === 'vehicle_parking' || baseName === 'fire_extinguisher_absence' ||
+                        baseName === 'reagent_bottle' || baseName === 'camera_occlusion' || baseName === 'fight' ||
+                        baseName === 'glove' || baseName === 'crack' || baseName === 'dog' || baseName === 'cat' ||
+                        baseName === 'fatigue_driving' || baseName === 'trash' || baseName === 'electric_bicycle' ||
+                        baseName === 'gas_cylinder_tilt' || baseName === 'box_object') {
+                        enabledAlgorithms.add(`${baseName}_violation`);
+                    } else {
+                        enabledAlgorithms.add(alg);
+                    }
+                }
+            });
+        }
+    });
+    
+    // 构建排行列表
+    const entries = Array.from(enabledAlgorithms)
+        .filter(type => detectionTypes[type])
+        .map(type => {
+            const typeConfig = detectionTypes[type] || {};
+            const count = Number(summary[type]) || 0;
+            return {
+                type,
+                count,
+                config: {
+                    name: typeConfig.name || type,
+                    color: typeConfig.color || '#ff4444'
+                }
+            };
+        })
+        .sort((a, b) => b.count - a.count);
+    
+    if (!entries.length) {
+        container.innerHTML = `<p class="text-xs text-gray-500 modern-font text-center py-4">${t('dashboard.no_algorithms_enabled')}</p>`;
+        return;
+    }
+
+    const maxCount = Math.max(...entries.map(e => e.count), 1);
+    
+    container.innerHTML = entries.map((item, index) => {
+        const percent = maxCount > 0 ? (item.count / maxCount) * 100 : 0;
+        return `
+            <div class="glass-card rounded-xl p-2">
+                <div class="flex justify-between items-center text-xs mb-1">
+                    <span class="text-xs text-white modern-font font-semibold">${index + 1}. ${item.config.name}</span>
+                    <span class="text-base font-bold digital-font" style="color: ${item.config.color};">${item.count}</span>
+                </div>
+                <div class="w-full h-1.5 bg-gray-900 rounded-full overflow-hidden">
+                    <div class="h-full transition-all duration-500 rounded-full" style="width: ${percent}%; background: linear-gradient(90deg, ${item.config.color}, ${item.config.color}88);"></div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function updateAlertSummary(data) {
+    // 从 latestLogs 动态计算本月和本周的违规告警数
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    
+    // 计算本周的起始日期（周一）
+    const currentDay = now.getDay();
+    const mondayOffset = currentDay === 0 ? 6 : currentDay - 1; // 周日为0，需要特殊处理
+    const monday = new Date(now);
+    monday.setDate(now.getDate() - mondayOffset);
+    monday.setHours(0, 0, 0, 0);
+    
+    let monthlyCount = 0;
+    let weeklyCount = 0;
+    
+    (latestLogs || []).forEach((log) => {
+        const timeStr = log.timestamp || log.time || '';
+        if (!timeStr) return;
+        
+        const normalized = timeStr.includes('T') ? timeStr : timeStr.replace(' ', 'T');
+        const logDate = new Date(normalized);
+        if (Number.isNaN(logDate.getTime())) return;
+        
+        // 只统计违规类型的告警
+        if (!(log.type || '').includes('violation')) return;
+        
+        // 计算本月告警
+        if (logDate.getMonth() === currentMonth && logDate.getFullYear() === currentYear) {
+            monthlyCount++;
+        }
+        
+        // 计算本周告警
+        if (logDate >= monday) {
+            weeklyCount++;
+        }
+    });
+
+    const monthlyEl = document.getElementById('stat-monthly');
+    const weeklyEl = document.getElementById('stat-weekly');
+    if (monthlyEl) monthlyEl.textContent = monthlyCount;
+    if (weeklyEl) weeklyEl.textContent = weeklyCount;
+}
+
+function fetchLogs() {
+    fetch('/api/alert_records')
+        .then((resp) => resp.json())
+        .then((data) => {
+            if (!data.success) {
+                throw new Error(data.message || '加载告警失败');
+            }
+            const rawLogs = Array.isArray(data.data) ? data.data : [];
+            const announceableLogs = rawLogs.filter((item) => {
+                const type = item.type || '';
+                return type.includes('violation') || type === 'safehat_vest_entry';
+            });
+            const violationOnly = rawLogs.filter((item) => (item.type || '').includes('violation'));
+            const previousIds = hasLoadedAlerts
+                ? new Set((latestAnnouncementLogs || []).map((log) => log.id))
+                : new Set(announceableLogs.map((log) => log.id));
+            latestLogs = violationOnly;
+            latestAnnouncementLogs = announceableLogs;
+            hasLoadedAlerts = true;
+            latestAlertMeta = data.meta || {};
+            renderLogs(latestLogs);
+            announceNewAlerts(previousIds, announceableLogs);
+            updateAlertSummary(data); // 更新左侧统计信息
+            updateBottomSummary();
+        })
+        .catch((error) => console.error('获取告警记录失败:', error));
+}
+
+function renderLogs(logs) {
+    const container = document.getElementById('logs-container');
+    if (!container) return;
+
+    if (!logs.length) {
+        container.innerHTML = `<p class="text-xs text-gray-500 modern-font text-center py-8">${t('dashboard.no_alert_records')}</p>`;
+        return;
+    }
+
+    const displayLogs = logs.slice(0, 4); // 显示最多4个告警
+
+    const cards = displayLogs.map((log) => {
+        const config = detectionTypes[log.type] || {
+            name: log.type_name || log.type,
+            color: '#ff6b35',
+            icon: '⚠️'
+        };
+        const preview = log.snapshot || '';
+        const previewHtml = preview
+            ? `<img src="${preview}" class="w-full h-20 object-cover rounded-xl" loading="lazy"
+                    onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');" alt="${config.name}">
+               <div class="hidden w-full h-20 items-center justify-center text-gray-500 bg-gray-900 rounded-xl text-xs modern-font">${t('dashboard.screenshot_failed')}</div>`
+            : `<div class="w-full h-20 flex items-center justify-center text-gray-500 bg-gray-900 rounded-xl text-xs modern-font">${t('dashboard.no_screenshot')}</div>`;
+        // 翻译告警类型：优先使用i18n，回退到后端中文名
+        const rawLabel = log.type_name || config.name;
+        const i18nTypeKey = log.type ? `alert_type.${log.type}` : null;
+        const violationLabel = (i18nTypeKey && window.i18n && window.i18n.t(i18nTypeKey) !== i18nTypeKey)
+            ? window.i18n.t(i18nTypeKey)
+            : rawLabel;
+        const channelLabel = log.channel_name || log.source || t('alert.channel.default');
+        
+        // 格式化时间
+        const timeStr = log.timestamp || log.time || '';
+        let formattedTime = '';
+        if (timeStr) {
+            const normalized = timeStr.includes('T') ? timeStr : timeStr.replace(' ', 'T');
+            const date = new Date(normalized);
+            if (!Number.isNaN(date.getTime())) {
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                formattedTime = `${month}-${day} ${hours}:${minutes}`;
+            }
+        }
+
+        return `
+            <div class="glass-card glass-card-hover rounded-xl p-2 space-y-1.5">
+                <div class="relative">${previewHtml}</div>
+                <div class="flex flex-col text-xs leading-tight">
+                    <span class="font-bold text-white text-xs modern-font">${violationLabel}</span>
+                    ${log.llm_reason ? `<span class="text-yellow-300 text-[10px] modern-font truncate" title="${log.llm_reason}">${t('admin.alert.field.reason')}${log.llm_reason}</span>` : ''}
+                    <span class="text-gray-400 text-xs modern-font">${channelLabel}</span>
+                    ${formattedTime ? `<span class="text-cyan-400 text-xs digital-font">${formattedTime}</span>` : ''}
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    const footer = logs.length > displayLogs.length
+        ? `<p class="text-[10px] text-gray-500 text-center mt-2 modern-font">${t('dashboard.more_alerts')}</p>`
+        : '';
+
+    container.innerHTML = cards + footer;
+}
+
+function announceNewAlerts(previousIds, alertsForAnnouncement = latestLogs) {
+    if (!window.alertSystem) return;
+    const newAlerts = (alertsForAnnouncement || [])
+        .filter((alert) => alert && alert.id && !previousIds.has(alert.id));
+    if (!newAlerts.length) return;
+
+    newAlerts.forEach((alert) => {
+        const typeConfig = detectionTypes[alert.type] || {};
+        // 翻译告警类型名称：优先用i18n key，回退到后端返回的中文名
+        const rawTypeName = alert.type_name || typeConfig.name || alert.type;
+        const i18nKey = alert.type ? `alert_type.${alert.type}` : null;
+        const translatedTypeName = (i18nKey && window.i18n && window.i18n.t(i18nKey) !== i18nKey)
+            ? window.i18n.t(i18nKey)
+            : rawTypeName;
+        // 生成告警消息：英文模式始终用翻译模板（后端返回的是中文消息）
+        const currentAlertLang = window.i18n ? window.i18n.lang() : 'zh-CN';
+        const translatedMessage = currentAlertLang !== 'zh-CN'
+            ? (window.i18n ? window.i18n.t('alert.message.template', { name: translatedTypeName }) : `${translatedTypeName} detected`)
+            : (alert.message || `发现${rawTypeName}告警`);
+        const alertPayload = {
+            id: alert.id,
+            type: alert.type,
+            type_name: translatedTypeName,
+            message: translatedMessage,
+            level: alert.risk_level === '高' ? 'critical' : 'high',
+            color: typeConfig.color || '#ff4444',
+            channel_name: alert.channel_name || alert.source || (window.i18n ? window.i18n.t('alert.channel.default') : '实时监控'),
+            time_str: alert.time || alert.timestamp,
+            audio_type: alert.audio_type || null
+        };
+        window.alertSystem.showAlert(alertPayload);
+    });
+}
+
+function getStatusClass(status) {
+    const text = status || '';
+    if (/未|告警|异常/.test(text)) return 'bg-red-500 bg-opacity-20 text-red-400';
+    if (/疑似|待/.test(text)) return 'bg-yellow-500 bg-opacity-20 text-yellow-400';
+    return 'bg-green-500 bg-opacity-20 text-green-400';
+}
+
+function getStatusLevel(status) {
+    const text = status || '';
+    if (/未|告警|异常/.test(text)) return '高';
+    if (/疑似|待/.test(text)) return '中';
+    return '低';
+}
+
+function fetchVideoSources() {
+    fetch('/api/video_sources')
+        .then((resp) => resp.json())
+        .then((data) => {
+            if (!data.success) throw new Error(data.message || '加载失败');
+            videoSources = data.data || [];
+            if (!selectedVideoSourceIds.length && videoSources.length) {
+                selectedVideoSourceIds = videoSources
+                    .filter((source) => source.enabled !== false)
+                    .slice(0, MAX_VIDEO_SELECTION)
+                    .map((source) => source.id);
+            }
+            renderVideoGrid();
+            renderVideoSelectorList();
+            updateLayoutButtons();
+            updateBottomSummary();
+        })
+        .catch((error) => console.error('加载视频源失败:', error));
+}
+
+// 关闭容器内所有 MJPEG 流连接，防止旧 <img> 在 DOM 替换后继续占用服务器线程
+function _disconnectStreamImgs(container) {
+    if (!container) return;
+    container.querySelectorAll('img[src*="/stream"]').forEach(img => { img.src = ''; });
+}
+
+function renderVideoGrid(targetId = 'video-grid') {
+    const container = document.getElementById(targetId);
+    if (!container) return;
+
+    // 先断开容器内已有的流连接，再重建 DOM
+    _disconnectStreamImgs(container);
+
+    const layout = layoutConfig[currentVideoLayout];
+    if (!layout) return;
+
+    container.classList.add('grid');
+    container.style.gridTemplateColumns = `repeat(${layout.cols}, minmax(0, 1fr))`;
+    container.style.gridTemplateRows = '';
+    container.style.gridAutoRows = 'auto';
+    container.style.minHeight = '360px';
+    container.style.alignItems = 'start';
+
+    const activeIds = selectedVideoSourceIds.slice(0, currentVideoLayout);
+    const tiles = [];
+    for (let i = 0; i < currentVideoLayout; i += 1) {
+        const sourceId = activeIds[i];
+        const source = videoSources.find((item) => Number(item.id) === Number(sourceId));
+        if (source && source.video_url) {
+            const streamUrl = `/api/video_sources/${source.id}/stream?ts=${streamCacheBuster}`;
+            const algorithms = Array.isArray(source.algorithms) ? source.algorithms : [];
+            const algorithmText = algorithms.length
+                ? algorithms.map((alg) => algorithmLabels[alg] || alg).join(' / ')
+                : t('dashboard.no_algorithm');
+            tiles.push(`
+                <div class="relative rounded-xl overflow-hidden bg-black shadow-lg" style="aspect-ratio: 16 / 9;">
+                    <img src="${streamUrl}" alt="${source.name}"
+                         class="absolute inset-0 w-full h-full object-contain bg-black"
+                         onerror="handleStreamError(event)">
+                    <div class="absolute inset-x-0 bottom-0 p-3 text-xs text-white" style="background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-bold modern-font text-sm">${source.name}</span>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] modern-font" style="background: rgba(16, 185, 129, 0.2); color: #10b981;">${source.status || t('dashboard.running')}</span>
+                        </div>
+                        <div class="text-[10px] text-gray-300 modern-font mb-1">${source.protocol || 'N/A'} · ${source.type || 'camera'}</div>
+                        <div class="text-[10px] text-cyan-400 digital-font truncate">${algorithmText}</div>
+                    </div>
+                </div>
+            `);
+        } else {
+            tiles.push(`<div class="flex items-center justify-center text-gray-500 border border-dashed rounded-xl text-sm modern-font" style="aspect-ratio: 16 / 9; border-color: rgba(6, 182, 212, 0.2);">${t('dashboard.no_video_source')}</div>`);
+        }
+    }
+
+    container.innerHTML = tiles.join('');
+
+    if (targetId !== 'fullscreen-grid') {
+        const fullscreenGrid = document.getElementById('fullscreen-grid');
+        if (fullscreenGrid && !fullscreenGrid.classList.contains('hidden')) {
+            renderVideoGrid('fullscreen-grid');
+        }
+    }
+}
+
+function openVideoSelector() {
+    tempVideoSelection = selectedVideoSourceIds.slice();
+    renderVideoSelectorList();
+    const modal = document.getElementById('videoSelectorModal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        modal.addEventListener('click', handleModalBackdrop);
+    }
+}
+
+function closeVideoSelector() {
+    const modal = document.getElementById('videoSelectorModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        modal.removeEventListener('click', handleModalBackdrop);
+    }
+}
+
+function handleModalBackdrop(event) {
+    if (event.target === event.currentTarget) {
+        closeVideoSelector();
+    }
+}
+
+function renderVideoSelectorList() {
+    const container = document.getElementById('video-selector-list');
+    const counter = document.getElementById('selected-count');
+    if (!container) return;
+
+    if (!videoSources.length) {
+        container.innerHTML = `<p class="text-sm text-gray-500 modern-font col-span-full text-center py-8">${t('dashboard.no_sources')}</p>`;
+        if (counter) counter.textContent = '0';
+        return;
+    }
+
+    const algSep = window.i18n && window.i18n.lang() === 'en-US' ? ' / ' : '、';
+    container.innerHTML = videoSources.map((source) => {
+        const sourceId = Number(source.id);
+        const isSelected = tempVideoSelection.includes(sourceId);
+        const orderIndex = tempVideoSelection.indexOf(sourceId);
+        const algText = (source.algorithms || []).map(alg => algorithmLabels[alg] || alg).join(algSep) || t('dashboard.no_algorithm');
+        return `
+            <button type="button" onclick="toggleVideoSelection(${sourceId})"
+                class="glass-card glass-card-hover text-left rounded-2xl p-4 transition-all ${isSelected ? 'border-cyan-400' : ''}">
+                <div class="flex justify-between items-center mb-3">
+                    <span class="text-white font-bold modern-font">${source.name}</span>
+                    ${isSelected ? `<span class="px-3 py-1 rounded-full text-xs font-bold digital-font" style="background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%); color: white;">#${orderIndex + 1}</span>` : ''}
+                </div>
+                <p class="text-xs text-gray-400 modern-font mb-2">${t('dashboard.source_type')}${(source.type || '').toUpperCase()}</p>
+                <p class="text-xs text-gray-400 modern-font mb-2">${t('dashboard.source_protocol')}${source.protocol || 'N/A'}</p>
+                <p class="text-xs text-gray-300 modern-font">${t('dashboard.source_algorithm')}${algText}</p>
+            </button>
+        `;
+    }).join('');
+
+    if (counter) counter.textContent = tempVideoSelection.length;
+}
+
+function toggleVideoSelection(sourceId) {
+    const numericId = Number(sourceId);
+    const index = tempVideoSelection.indexOf(numericId);
+    if (index >= 0) {
+        tempVideoSelection.splice(index, 1);
+    } else {
+        if (tempVideoSelection.length >= MAX_VIDEO_SELECTION) {
+            showMessage(t('dashboard.max_select', {n: MAX_VIDEO_SELECTION}), 'error');
+            return;
+        }
+        tempVideoSelection.push(numericId);
+    }
+    renderVideoSelectorList();
+}
+
+function applyVideoSelection() {
+    selectedVideoSourceIds = tempVideoSelection.slice();
+    streamCacheBuster = Date.now();
+    renderVideoGrid();
+    updateLayoutButtons();
+    updateBottomSummary();
+    closeVideoSelector();
+}
+
+function setVideoLayout(layout) {
+    const numericLayout = Number(layout);
+    if (!layoutConfig[numericLayout]) return;
+    currentVideoLayout = numericLayout;
+    updateLayoutButtons();
+    renderVideoGrid();
+}
+
+function updateLayoutButtons() {
+    document.querySelectorAll('.layout-btn').forEach((btn) => {
+        const layout = Number(btn.dataset.layout);
+        if (layout === currentVideoLayout) {
+            btn.style.background = 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)';
+            btn.style.color = 'white';
+            btn.style.borderColor = 'rgba(6, 182, 212, 0.5)';
+        } else {
+            btn.style.background = 'rgba(6, 182, 212, 0.1)';
+            btn.style.color = '#9ca3af';
+            btn.style.borderColor = 'rgba(6, 182, 212, 0.3)';
+        }
+    });
+}
+
+function refreshSelectedStreams() {
+    if (streamRefreshCooldown) return;
+    streamRefreshCooldown = true;
+    streamCacheBuster = Date.now();
+    renderVideoGrid();
+    window.setTimeout(() => {
+        streamRefreshCooldown = false;
+    }, 1200);
+}
+
+function handleStreamError(event) {
+    const placeholder = document.createElement('div');
+    placeholder.className = 'w-full h-full flex items-center justify-center text-gray-500 bg-gray-900 text-sm';
+    placeholder.textContent = t('dashboard.video_load_failed');
+    event.target.replaceWith(placeholder);
+}
+
+function showFullscreenOverlay() {
+    const overlay = document.getElementById('videoFullscreenOverlay');
+    const grid = document.getElementById('fullscreen-grid');
+    if (!overlay || !grid) return false;
+    overlay.classList.remove('hidden');
+    overlay.classList.add('flex');
+    grid.classList.remove('hidden');
+    grid.classList.add('grid', 'gap-2', 'h-full');
+    renderVideoGrid('fullscreen-grid');
+    isFullscreenOverlayActive = true;
+    return true;
+}
+
+function hideFullscreenOverlay() {
+    const overlay = document.getElementById('videoFullscreenOverlay');
+    const grid = document.getElementById('fullscreen-grid');
+    if (!overlay || !grid) return;
+    // 先断开全屏容器里的流连接，再清空 DOM
+    _disconnectStreamImgs(grid);
+    overlay.classList.add('hidden');
+    overlay.classList.remove('flex');
+    grid.classList.add('hidden');
+    grid.classList.remove('grid', 'gap-2', 'h-full');
+    grid.innerHTML = '';
+    isFullscreenOverlayActive = false;
+}
+
+function enterFullscreen() {
+    const shown = showFullscreenOverlay();
+    if (!shown) return;
+    const overlay = document.getElementById('videoFullscreenOverlay');
+    if (overlay && overlay.requestFullscreen && !document.fullscreenElement) {
+        overlay.requestFullscreen().catch(() => {});
+    }
+}
+
+function exitFullscreen() {
+    if (document.fullscreenElement && document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {
+            hideFullscreenOverlay();
+        });
+    } else {
+        hideFullscreenOverlay();
+    }
+}
+
+function getTodayAlertStats(logs) {
+    const today = new Date().toISOString().slice(0, 10);
+    let total = 0;
+    let processed = 0;
+    let pending = 0;
+
+    logs.forEach((log) => {
+        const timeStr = log.timestamp || log.time || '';
+        if (!timeStr) return;
+        const normalized = timeStr.includes('T') ? timeStr : timeStr.replace(' ', 'T');
+        const date = new Date(normalized);
+        if (Number.isNaN(date.getTime())) return;
+        const day = date.toISOString().slice(0, 10);
+        if (day !== today) return;
+        total += 1;
+        if (/已处理|确认|复核|完成|误报/.test(log.status || '')) {
+            processed += 1;
+        } else {
+            pending += 1;
+        }
+    });
+
+    return { total, processed, pending };
+}
+
+function updateBottomSummary() {
+    const enabledCount = videoSources.filter((src) => src.enabled !== false).length;
+    const maxChannels = parseInt('{{ max_channels|default(6) }}');
+    
+    const videoEnabledEl = document.getElementById('metric-video-enabled');
+    const videoLimitEl = document.getElementById('metric-video-limit');
+    if (videoEnabledEl) videoEnabledEl.textContent = enabledCount;
+    if (videoLimitEl) videoLimitEl.textContent = maxChannels;
+
+    const todayStats = getTodayAlertStats(latestLogs || []);
+    const totalEl = document.getElementById('metric-today-total');
+    const doneEl = document.getElementById('metric-today-done');
+    const pendingEl = document.getElementById('metric-today-pending');
+    if (totalEl) totalEl.textContent = todayStats.total;
+    if (doneEl) doneEl.textContent = todayStats.processed;
+    if (pendingEl) pendingEl.textContent = todayStats.pending;
+    
+    // 更新今日避免风险数
+    const riskAvoidedEl = document.getElementById('risk-avoided');
+    if (riskAvoidedEl) riskAvoidedEl.textContent = todayStats.processed;
+    
+    // 更新连续安全运行天数（简化计算：系统启动时间）
+    updateSafeDays();
+    
+    // 更新环形图
+    updateProcessingChart(todayStats);
+    
+    // 更新视频信息条
+    updateVideoInfoBar();
+}
+
+// 更新环形图（带标注线）
+let processingChart = null;
+function updateProcessingChart(stats) {
+    const chartDom = document.getElementById('processing-chart');
+    if (!chartDom) return;
+    
+    if (!processingChart) {
+        processingChart = echarts.init(chartDom);
+    }
+    
+    const total = stats.total || 0;
+    const processed = stats.processed || 0;
+    const pending = stats.pending || 0;
+    
+    const option = {
+        backgroundColor: 'transparent',
+        tooltip: {
+            trigger: 'item',
+            backgroundColor: 'rgba(0,0,0,0.85)',
+            borderColor: '#06b6d4',
+            textStyle: { color: '#fff', fontSize: 12 },
+            formatter: function(params) {
+                const percent = total > 0 ? ((params.value / total) * 100).toFixed(1) : 0;
+                return `${params.name}<br/>${params.value} ${t('dashboard.chart_unit')} (${percent}%)`;
+            }
+        },
+        series: [
+            {
+                name: '今日告警',
+                type: 'pie',
+                radius: ['36%', '54%'],
+                center: ['50%', '43%'],
+                avoidLabelOverlap: true,
+                label: {
+                    show: true,
+                    position: 'outside',
+                    distanceToLabelLine: 7,
+                    edgeDistance: 18,
+                    bleedMargin: 10,
+                    formatter: function(params) {
+                        return `{name|${params.name}}\n{value|${params.value}}`;
+                    },
+                    rich: {
+                        name: {
+                            fontSize: 10,
+                            color: '#9ca3af',
+                            fontFamily: 'Microsoft YaHei, sans-serif',
+                            lineHeight: 14
+                        },
+                        value: {
+                            fontSize: 15,
+                            fontWeight: 'bold',
+                            color: '#fff',
+                            fontFamily: 'Consolas, Monaco, monospace',
+                            lineHeight: 18
+                        }
+                    }
+                },
+                labelLine: {
+                    show: true,
+                    length: 14,
+                    length2: 12,
+                    lineStyle: {
+                        color: '#4b5563',
+                        width: 1
+                    }
+                },
+                data: [
+                    { 
+                        value: processed, 
+                        name: t('dashboard.processed'),
+                        itemStyle: {
+                            color: {
+                                type: 'linear',
+                                x: 0, y: 0, x2: 1, y2: 1,
+                                colorStops: [
+                                    { offset: 0, color: '#10b981' },
+                                    { offset: 1, color: '#059669' }
+                                ]
+                            }
+                        },
+                        label: {
+                            rich: {
+                                name: { color: '#10b981' },
+                                value: { color: '#10b981' }
+                            }
+                        }
+                    },
+                    { 
+                        value: pending, 
+                        name: t('dashboard.unprocessed'),
+                        itemStyle: {
+                            color: {
+                                type: 'linear',
+                                x: 0, y: 0, x2: 1, y2: 1,
+                                colorStops: [
+                                    { offset: 0, color: '#ef4444' },
+                                    { offset: 1, color: '#dc2626' }
+                                ]
+                            }
+                        },
+                        label: {
+                            rich: {
+                                name: { color: '#ef4444' },
+                                value: { color: '#ef4444' }
+                            }
+                        }
+                    }
+                ],
+                emphasis: {
+                    itemStyle: {
+                        shadowBlur: 10,
+                        shadowOffsetX: 0,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }
+        ]
+    };
+    
+    processingChart.setOption(option);
+}
+
+// 更新连续安全运行天数
+function updateSafeDays() {
+    const safeDaysEl = document.getElementById('safe-days');
+    if (!safeDaysEl) return;
+    
+    // 简化计算：从本地存储读取系统首次启动时间
+    const startTimeKey = 'system_start_time';
+    let startTime = localStorage.getItem(startTimeKey);
+    
+    if (!startTime) {
+        // 首次启动，记录当前时间
+        startTime = new Date().toISOString();
+        localStorage.setItem(startTimeKey, startTime);
+    }
+    
+    const start = new Date(startTime);
+    const now = new Date();
+    const diffMs = now - start;
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    
+    safeDaysEl.textContent = diffDays;
+}
+
+// 更新视频信息条（算法数和在线摄像头数）
+function updateVideoInfoBar() {
+    // 统计所有启用的算法（去重）
+    const algorithmsSet = new Set();
+    let onlineCameras = 0;
+    
+    (videoSources || []).forEach(source => {
+        if (source.enabled !== false) {
+            onlineCameras++;
+            if (source.algorithms && Array.isArray(source.algorithms)) {
+                source.algorithms.forEach(alg => algorithmsSet.add(alg));
+            }
+        }
+    });
+    
+    const algorithmCountEl = document.getElementById('algorithm-count');
+    const onlineCamerasEl = document.getElementById('online-cameras');
+    
+    if (algorithmCountEl) algorithmCountEl.textContent = algorithmsSet.size;
+    if (onlineCamerasEl) onlineCamerasEl.textContent = onlineCameras;
+}
+
+function showMessage(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `fixed top-4 right-4 px-4 py-2 rounded-lg font-bold text-white z-50 ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 2500);
+}
+
+function initAutoRefresh() {
+    setInterval(fetchStats, 5000);
+    setInterval(fetchLogs, 1000);
+}
+
+window.openVideoSelector = openVideoSelector;
+window.closeVideoSelector = closeVideoSelector;
+window.setVideoLayout = setVideoLayout;
+window.refreshSelectedStreams = refreshSelectedStreams;
+window.handleStreamError = handleStreamError;
+window.enterFullscreen = enterFullscreen;
+window.exitFullscreen = exitFullscreen;
+
+document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement && isFullscreenOverlayActive) {
+        hideFullscreenOverlay();
+    }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    updateTime();
+    setInterval(updateTime, 1000);
+    fetchStats();
+    fetchLogs();
+    fetchVideoSources();
+    initAutoRefresh();
+    
+    // 确保图表响应窗口大小变化
+    window.addEventListener('resize', () => {
+        if (alertChart) alertChart.resize();
+        if (processingChart) processingChart.resize();
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,18 @@
+注意：此处应放置 fight_warning.mp3 音频文件
+
+由于文件大小限制，这里仅提供一个文本占位文件。
+
+要生成告警音频文件，您可以：
+
+1. 使用在线文本转语音工具（推荐）:
+   - Azure TTS: https://azure.microsoft.com/zh-cn/services/cognitive-services/text-to-speech/
+   - 科大讯飞: https://www.xfyun.cn/services/online_tts
+   - 百度语音: https://ai.baidu.com/tech/speech/tts
+
+2. 推荐的告警文本：
+   "警告！检测到打架行为，请立即查看并处理！"
+
+3. 生成后将文件重命名为 fight_warning.mp3 并放置在此目录
+
+如果没有音频文件，系统将自动使用浏览器的文本转语音(TTS)功能作为后备方案。
+

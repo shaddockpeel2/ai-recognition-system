@@ -1,0 +1,57 @@
+{
+  "voice_enabled": true,
+  "popup_enabled": false,
+  "voice_volume": 80,
+  "popup_duration": 5,
+  "language": "zh-CN",
+  "alert_templates": {
+    "helmet": {
+      "name": "安全帽检测",
+      "message": "发现未佩戴安全帽，请立即佩戴！",
+      "audio_file": "static/audio/alerts/helmet_warning.mp3",
+      "audio_file_en": "static/audio/alerts/helmet_warning_en.mp3",
+      "level": "high",
+      "color": "#ff4444"
+    },
+    "vest": {
+      "name": "反光衣检测",
+      "message": "发现未穿戴反光衣，请立即穿戴！",
+      "audio_file": "static/audio/alerts/vest_warning.mp3",
+      "audio_file_en": "static/audio/alerts/vest_warning_en.mp3",
+      "level": "high",
+      "color": "#ff6b35"
+    },
+    "smoke": {
+      "name": "烟雾检测",
+      "message": "发现烟雾火情，请注意安全！",
+      "audio_file": "static/audio/alerts/smoke_warning.mp3",
+      "audio_file_en": "static/audio/alerts/smoke_warning_en.mp3",
+      "level": "critical",
+      "color": "#ff0000"
+    },
+    "crack": {
+      "name": "裂缝检测",
+      "message": "发现结构裂缝，请及时检修！",
+      "audio_file": "static/audio/alerts/crack_warning.mp3",
+      "audio_file_en": "static/audio/alerts/crack_warning_en.mp3",
+      "level": "medium",
+      "color": "#ff9800"
+    },
+    "intrusion": {
+      "name": "区域入侵",
+      "message": "检测到非法入侵，请立即处理！",
+      "audio_file": "static/audio/alerts/intrusion_warning.mp3",
+      "audio_file_en": "static/audio/alerts/intrusion_warning_en.mp3",
+      "level": "critical",
+      "color": "#ff0000"
+    },
+    "fall": {
+      "name": "人员跌倒",
+      "message": "检测到人员跌倒，请紧急救援！",
+      "audio_file": "static/audio/alerts/fall_warning.mp3",
+      "audio_file_en": "static/audio/alerts/fall_warning_en.mp3",
+      "level": "critical",
+      "color": "#ff0000"
+    }
+  }
+}

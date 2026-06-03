@@ -1,0 +1,67 @@
+/* custom.css - 本地自定义样式 */
+
+/* Orbitron 字体 - 使用系统字体作为fallback */
+@font-face {
+    font-family: 'Orbitron';
+    font-weight: 400;
+    font-style: normal;
+    src: local('Orbitron'), local('Orbitron-Regular'), 
+         url('../fonts/orbitron-regular.woff2') format('woff2'),
+         url('../fonts/orbitron-regular.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'Orbitron';
+    font-weight: 700;
+    font-style: normal;
+    src: local('Orbitron Bold'), local('Orbitron-Bold'),
+         url('../fonts/orbitron-bold.woff2') format('woff2'),
+         url('../fonts/orbitron-bold.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'Orbitron';
+    font-weight: 900;
+    font-style: normal;
+    src: local('Orbitron Black'), local('Orbitron-Black'),
+         url('../fonts/orbitron-black.woff2') format('woff2'),
+         url('../fonts/orbitron-black.woff') format('woff');
+}
+
+.cyber-font {
+    font-family: 'Orbitron', 'Courier New', monospace;
+}
+
+@keyframes glow {
+    from { box-shadow: 0 0 20px rgba(0, 212, 255, 0.3); }
+    to { box-shadow: 0 0 30px rgba(0, 212, 255, 0.6); }
+}
+
+.cyber-border {
+    border: 1px solid #00d4ff;
+    background: linear-gradient(145deg, rgba(26, 26, 46, 0.8), rgba(22, 33, 62, 0.8));
+}
+
+.cyber-border-r {
+    border-right: 1px solid #00d4ff;
+}
+
+.cyber-button {
+    background: linear-gradient(145deg, #00d4ff, #0099cc);
+    transition: all 0.3s ease;
+}
+
+.cyber-button:hover {
+    background: linear-gradient(145deg, #00ff88, #00cc66);
+    transform: translateY(-2px);
+}
+
+.alert-high { border-left: 4px solid #ef4444; }
+.alert-medium { border-left: 4px solid #f59e0b; }
+.alert-low { border-left: 4px solid #10b981; }
+
+/* Tailwind 替代样式 */
+.nav-item.active {
+    background-color: rgba(10, 10, 10, 0.8);
+    color: white;
+}

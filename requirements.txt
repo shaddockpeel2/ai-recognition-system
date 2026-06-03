@@ -1,0 +1,28 @@
+# SafeHat 依赖包列表（优化版）
+# 使用更宽松的版本限制，提高兼容性
+
+# 核心AI检测库
+ultralytics>=8.0.0
+
+# 图像处理库（降低版本要求，提高兼容性）
+opencv-python>=4.5.0
+Pillow>=8.0.0
+numpy>=1.19.0
+
+# 深度学习框架（降低版本要求）
+torch>=1.10.0
+torchvision>=0.11.0
+
+# Web框架和桌面版
+flask>=2.0.0
+requests>=2.25.0
+pywebview>=4.0.0
+onvif-zeep>=0.2.12
+
+# ====== 数据推送核心库（必需） ======
+pyserial>=3.5          # RS232/RS485串口通信
+
+# ====== 数据推送可选库（如不使用对应功能可不安装） ======
+# pymodbus>=3.0.0      # MODBUS协议（如需MODBUS设备联动请安装）
+# paho-mqtt>=1.6.1     # MQTT推送（如需MQTT推送请安装）
+# RPi.GPIO>=0.7.1      # 树莓派GPIO控制（仅ARM平台，x86不要安装）

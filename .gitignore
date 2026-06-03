@@ -1,0 +1,13 @@
+# 忽略红圈标记的文件夹（包括其下的所有改动）
+/jdk-21.0.11/
+/jpg/
+/logs/
+/models/
+/Release/
+/release-wvp/
+/wvp-GB28181-pro/
+
+# 建议顺便忽略的其他常见系统/编译缓存
+__pycache__/
+.idea/
+.vscode/

@@ -1,0 +1,87 @@
+{
+  "helmet_detection": {
+    "confidence_threshold": 0.5
+  },
+  "vest_detection": {
+    "confidence_threshold": 0.5
+  },
+  "smoke_detection": {
+    "confidence_threshold": 0.5
+  },
+  "fire_detection": {
+    "confidence_threshold": 0.5
+  },
+  "fall_detection": {
+    "confidence_threshold": 0.5,
+    "fall_duration_threshold": 2.0
+  },
+  "mask_detection": {
+    "confidence_threshold": 0.5
+  },
+  "intrusion_detection": {
+    "confidence_threshold": 0.5
+  },
+  "crowd_gathering_detection": {
+    "confidence_threshold": 0.5,
+    "min_people": 3,
+    "duration_threshold": 10.0
+  },
+  "person_absence_detection": {
+    "confidence_threshold": 0.5,
+    "absence_duration_threshold": 10.0
+  },
+  "vehicle_parking_detection": {
+    "confidence_threshold": 0.5,
+    "parking_duration_threshold": 30.0
+  },
+  "fire_extinguisher_absence_detection": {
+    "confidence_threshold": 0.5,
+    "absence_duration_threshold": 10.0
+  },
+  "reagent_bottle_detection": {
+    "confidence_threshold": 0.5
+  },
+  "camera_occlusion_detection": {
+    "confidence_threshold": 0.2
+  },
+  "fight_detection": {
+    "confidence_threshold": 0.5,
+    "fight_duration_threshold": 5.0
+  },
+  "glove_detection": {
+    "confidence_threshold": 0.5
+  },
+  "crack_detection": {
+    "confidence_threshold": 0.5
+  },
+  "dog_detection": {
+    "confidence_threshold": 0.5
+  },
+  "cat_detection": {
+    "confidence_threshold": 0.5
+  },
+  "fatigue_driving_detection": {
+    "confidence_threshold": 0.5
+  },
+  "trash_detection": {
+    "confidence_threshold": 0.5
+  },
+  "electric_bicycle_detection": {
+    "confidence_threshold": 0.5
+  },
+  "theft_detection": {
+    "confidence_threshold": 0.5
+  },
+  "work_clothes_detection": {
+    "confidence_threshold": 0.5
+  },
+  "safehat_vest_detection": {
+    "confidence_threshold": 0.5
+  },
+  "gas_cylinder_tilt_detection": {
+    "confidence_threshold": 0.5
+  },
+  "box_object_detection": {
+    "confidence_threshold": 0.5
+  }
+}

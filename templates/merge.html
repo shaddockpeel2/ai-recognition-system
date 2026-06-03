@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}合流通道 - AI安全隐患识别系统{% endblock %}
+
+{% block content %}
+<div class="p-6">
+    <!-- 页面标题 -->
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-3xl font-bold cyber-font text-cyber-blue">📺 合流通道配置</h2>
+        <button onclick="showAddModal()" class="cyber-button px-6 py-2 rounded-lg text-black font-bold">
+            ➕ 新增配置
+        </button>
+    </div>
+
+    <!-- 配置列表 -->
+    <div class="bg-dark-card cyber-border rounded-lg p-6">
+        <table class="w-full" id="configsTable">
+            <thead>
+                <tr class="border-b border-cyber-blue border-opacity-30">
+                    <th class="text-left py-3 px-4 text-cyber-blue">配置ID</th>
+                    <th class="text-left py-3 px-4 text-cyber-blue">配置名称</th>
+                    <th class="text-left py-3 px-4 text-cyber-blue">拼屏布局</th>
+                    <th class="text-left py-3 px-4 text-cyber-blue">通道数量</th>
+                    <th class="text-left py-3 px-4 text-cyber-blue">状态</th>
+                    <th class="text-left py-3 px-4 text-cyber-blue">操作</th>
+                </tr>
+            </thead>
+            <tbody id="configsBody">
+                <!-- 动态加载 -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 新增/编辑配置模态框 -->
+<div id="configModal" class="fixed inset-0 bg-black bg-opacity-70 hidden z-50 flex items-center justify-center">
+    <div class="bg-dark-card cyber-border rounded-lg p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <h3 class="text-2xl font-bold text-cyber-blue mb-6" id="modalTitle">新增合流配置</h3>
+        
+        <form id="configForm">
+            <input type="hidden" id="configId">
+            
+            <!-- 配置名称 -->
+            <div class="mb-4">
+                <label class="block text-white mb-2">配置名称 *</label>
+                <input type="text" id="configName" required
+                    class="w-full bg-dark-bg border border-cyber-blue border-opacity-30 rounded px-4 py-2 text-white">
+            </div>
+
+            <!-- 拼屏布局 -->
+            <div class="mb-4">
+                <label class="block text-white mb-2">拼屏布局 *</label>
+                <div class="flex space-x-4">
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="radio" name="layout" value="1" checked onchange="updateLayout()"
+                            class="w-4 h-4">
+                        <span class="text-white">1分屏 (1x1)</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="radio" name="layout" value="4" onchange="updateLayout()"
+                            class="w-4 h-4">
+                        <span class="text-white">4分屏 (2x2)</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="radio" name="layout" value="9" onchange="updateLayout()"
+                            class="w-4 h-4">
+                        <span class="text-white">9分屏 (3x3)</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- 通道选择 -->
+            <div class="mb-4">
+                <label class="block text-white mb-2">选择通道</label>
+                <div class="text-sm text-gray-400 mb-2">
+                    已选择 <span id="selectedCount">0</span>/<span id="maxChannels">1</span> 个通道
+                </div>
+                <div id="channelsList" class="max-h-48 overflow-y-auto bg-dark-bg border border-cyber-blue border-opacity-30 rounded p-4">
+                    <!-- 动态加载通道列表 -->
+                </div>
+            </div>
+
+            <!-- 布局预览 -->
+            <div class="mb-6">
+                <label class="block text-white mb-2">布局预览</label>
+                <div id="layoutPreview" class="grid gap-2 bg-dark-bg border border-cyber-blue border-opacity-30 rounded p-4">
+                    <!-- 动态生成预览 -->
+                </div>
+            </div>
+
+            <!-- 按钮 -->
+            <div class="flex justify-end space-x-4">
+                <button type="button" onclick="closeModal()" 
+                    class="bg-gray-600 hover:bg-gray-700 px-6 py-2 rounded-lg text-white font-bold transition-all">
+                    取消
+                </button>
+                <button type="submit" 
+                    class="cyber-button px-6 py-2 rounded-lg text-black font-bold">
+                    保存
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/merge.js"></script>
+{% endblock %}
+
+

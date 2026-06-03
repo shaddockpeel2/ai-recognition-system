@@ -1,0 +1,999 @@
+# SafeHat AI 安全检测系统 - 开发规范
+# 目标平台: ARM Linux (瑞芯微 RK3586)
+# 技术栈: Flask + YOLOv8 + OpenCV + PyTorch
+
+## 核心开发理念
+
+### 基本原则
+
+- **增量开发优于大爆炸** - 小步迭代，每次修改都要能运行和测试
+- **从现有代码学习** - 研究并遵循项目现有模式和风格
+- **实用主义优于教条主义** - 适应项目实际情况，不生搬硬套
+- **清晰意图优于聪明代码** - 选择平凡易懂的方案，避免炫技
+
+### 简洁性定义
+
+- 单一职责 - 每个函数/类只做一件事
+- 避免过早抽象 - 三次重复再考虑抽象
+- 不搞花哨 - 选择最无聊的解决方案
+- 需要解释就太复杂 - 代码应自解释
+
+### 遇到困难时（最多3次尝试后必须停止）
+
+**关键**: 同一问题最多尝试3次，然后必须改变策略。
+
+1. **记录失败信息**:
+   - 尝试了什么
+   - 具体错误信息
+   - 为什么认为失败了
+
+2. **研究替代方案**:
+   - 找2-3个类似实现参考
+   - 注意不同的技术路线
+
+3. **质疑基础假设**:
+   - 抽象层级是否正确？
+   - 能否拆分成更小的问题？
+   - 有没有更简单的完整方案？
+
+4. **尝试不同角度**:
+   - 换一个库/框架特性？
+   - 换一个架构模式？
+   - 移除抽象而非增加？
+
+---
+
+## 技术标准
+
+### 架构原则
+
+- **组合优于继承** - 使用依赖注入
+- **接口优于单例** - 便于测试和灵活性
+- **显式优于隐式** - 清晰的数据流和依赖关系
+- **测试驱动** - 永远不要禁用测试，应该修复它们
+
+### 代码质量
+
+**提交前必须做**:
+- 运行格式化工具/linter
+- 自查代码变更
+- commit message 解释"为什么"而非"是什么"
+
+### 错误处理
+
+- 快速失败，提供描述性错误信息
+- 包含调试上下文信息
+- 在适当层级处理错误
+- 永远不要静默吞掉异常
+
+---
+
+## 项目集成
+
+### 学习代码库
+
+在修改代码前，必须：
+- 找到3个类似的功能/组件作为参考
+- 识别通用模式和约定
+- 尽可能使用相同的库/工具
+- 遵循现有的测试模式
+
+### 工具链
+
+- 使用项目现有的构建系统
+- 使用项目的测试框架
+- 使用项目的格式化/linter 设置
+- 没有充分理由不要引入新工具
+
+---
+
+## 决策框架
+
+当存在多个有效方案时，按以下优先级选择：
+
+1. **可测试性** - 能否容易测试？
+2. **可读性** - 6个月后还能理解吗？
+3. **一致性** - 符合项目现有模式吗？
+4. **简洁性** - 是否是最简单可行的方案？
+5. **可逆性** - 以后修改有多难？
+
+---
+
+## 质量门禁
+
+### 测试指南
+
+- 测试行为而非实现
+- 每个测试尽可能只有一个断言
+- 测试名称清楚描述场景
+- 使用现有的测试工具/助手
+- 测试必须是确定性的（无随机性）
+
+---
+
+## 重要提醒
+
+**永远不要**:
+- 使用 `--no-verify` 绕过 commit hooks
+- 禁用测试而不是修复它们
+- 提交无法编译的代码
+- 假设任何事 - 用现有代码验证
+
+**始终使用中文回复用户**
+
+---
+
+# ====================================
+# 项目特定规范 - SafeHat AI 检测系统
+# ====================================
+
+## 技术栈约定
+
+### AI/ML 开发规范
+
+#### 模型管理
+- **模型加载**: 系统启动时一次性加载，避免重复加载
+- **路径管理**: 使用相对路径，确保跨平台兼容
+- **模型文件**: 统一放在 `runs/detect/train/weights/` 目录
+- **版本控制**: 不要将大模型文件 (.pt) 提交到 git
+
+```python
+# 好的做法
+class DetectionManager:
+    def __init__(self):
+        self.model = YOLO('runs/detect/train/weights/best.pt')  # 启动时加载一次
+    
+    def detect(self, frame):
+        return self.model(frame)  # 复用模型实例
+
+# 不好的做法
+def detect(frame):
+    model = YOLO('best.pt')  # 每次都重新加载，浪费资源
+    return model(frame)
+```
+
+#### 推理优化
+- **批处理**: 能批量处理就不要单张处理
+- **置信度阈值**: 使用配置文件管理，不要硬编码
+- **NMS阈值**: 根据实际场景调整，避免过度抑制
+- **输入尺寸**: ARM平台建议使用640x640或更小
+- **设备选择**: ARM平台优先使用CPU，明确指定 `device='cpu'`
+
+```python
+# ARM 平台推理配置
+results = model(
+    frame,
+    conf=0.5,      # 置信度阈值
+    iou=0.45,      # NMS IOU阈值  
+    imgsz=640,     # 输入尺寸（ARM平台不要太大）
+    device='cpu',  # ARM平台使用CPU
+    verbose=False  # 关闭详细输出，提升性能
+)
+```
+
+#### 检测结果处理
+- **边界框**: 始终验证坐标有效性（非负，不超出图像范围）
+- **类别ID**: 使用枚举或常量，不要使用魔法数字
+- **后处理**: 统一在Manager层处理，不要散落在各处
+- **结果缓存**: 对频繁查询的统计数据使用缓存
+
+### OpenCV 与摄像头管理
+
+#### 资源管理（关键！）
+- **必须释放**: VideoCapture 使用后必须 `release()`
+- **使用上下文管理器**: 或在 `atexit` 注册清理函数
+- **多线程安全**: 摄像头对象不要跨线程共享
+- **错误处理**: 摄像头打开失败必须有降级方案
+
+```python
+# 好的做法 - 确保资源释放
+import atexit
+
+class CameraManager:
+    def __init__(self):
+        self.cap = cv2.VideoCapture(0)
+        atexit.register(self.cleanup)
+    
+    def cleanup(self):
+        if self.cap and self.cap.isOpened():
+            self.cap.release()
+            print("摄像头已释放")
+
+# 或使用上下文管理器
+class Camera:
+    def __enter__(self):
+        self.cap = cv2.VideoCapture(0)
+        return self.cap
+    
+    def __exit__(self, *args):
+        self.cap.release()
+```
+
+#### 性能优化
+- **分辨率**: ARM平台推荐640x480，不要使用1080p
+- **帧率控制**: 使用 `time.sleep()` 控制检测频率（如每秒3-5帧）
+- **跳帧处理**: 对于实时流，可以跳过一些帧只检测关键帧
+- **解码优化**: 使用 `CAP_PROP_BUFFERSIZE=1` 减少延迟
+
+```python
+# ARM 平台摄像头配置
+cap = cv2.VideoCapture(0)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)   # 降低分辨率
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+cap.set(cv2.CAP_PROP_FPS, 30)
+cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)      # 减少缓冲，降低延迟
+```
+
+#### 图像处理
+- **色彩空间**: OpenCV 使用BGR，注意转换
+- **内存复制**: 使用 `frame.copy()` 避免数据被修改
+- **编码质量**: JPEG编码质量参数影响性能，建议75-85
+- **图像缩放**: 使用 `cv2.INTER_LINEAR` 适合实时处理
+
+### Flask Web 开发规范
+
+#### API 设计
+- **RESTful**: 遵循REST原则，使用正确的HTTP方法
+- **JSON响应**: 统一返回JSON格式，包含 `success` 状态字段
+- **错误处理**: 使用统一的错误响应格式
+- **CORS**: 如需跨域，在配置中统一处理
+
+```python
+# 统一的响应格式
+@app.route('/api/detection/status')
+def get_status():
+    try:
+        data = real_detector.get_stats()
+        return jsonify({
+            'success': True,
+            'data': data
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+```
+
+#### 路由组织
+- **蓝图**: 使用Blueprint组织大型应用
+- **命名规范**: URL使用小写字母和连字符（kebab-case）
+- **版本控制**: API加版本前缀 `/api/v1/`
+- **静态资源**: 图片、音频等放在 `static/` 目录
+
+#### 线程安全
+- **全局变量**: Flask是多线程的，注意共享状态的线程安全
+- **Manager实例**: 使用锁保护关键区
+- **队列通信**: 线程间通信使用 `queue.Queue`
+
+```python
+import threading
+
+class AlertManager:
+    def __init__(self):
+        self._lock = threading.Lock()
+        self._alerts = []
+    
+    def add_alert(self, alert):
+        with self._lock:
+            self._alerts.append(alert)
+```
+
+### 数据管理规范
+
+#### 配置文件
+- **JSON格式**: 使用JSON存储配置（如 `alert_config.json`）
+- **路径**: 配置文件放在 `data/` 目录
+- **默认值**: 读取配置时提供默认值
+- **验证**: 加载后验证配置完整性
+
+```python
+import json
+from pathlib import Path
+
+def load_config(config_file='data/alert_config.json'):
+    default_config = {
+        'enabled': True,
+        'volume': 80,
+        'interval': 5
+    }
+    
+    try:
+        if Path(config_file).exists():
+            with open(config_file, 'r', encoding='utf-8') as f:
+                config = json.load(f)
+                return {**default_config, **config}  # 合并默认值
+    except Exception as e:
+        print(f"配置加载失败: {e}")
+    
+    return default_config
+```
+
+#### 告警记录
+- **截图存储**: 告警截图放在 `alert_screenshots/` 目录
+- **文件命名**: 使用时间戳 + 类型，如 `20231120_143022_helmet.jpg`
+- **自动清理**: 定期清理旧文件，避免磁盘占满
+- **大小限制**: 单个截图不超过500KB
+
+#### 日志管理
+- **使用logging**: 不要使用 print，使用 Python logging 模块
+- **日志级别**: 开发用DEBUG，生产用INFO
+- **文件轮转**: 使用 RotatingFileHandler 限制日志大小
+- **格式统一**: 包含时间戳、级别、模块名
+
+```python
+import logging
+from logging.handlers import RotatingFileHandler
+
+def setup_logger(name):
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.INFO)
+    
+    handler = RotatingFileHandler(
+        'logs/app.log',
+        maxBytes=10*1024*1024,  # 10MB
+        backupCount=5,
+        encoding='utf-8'
+    )
+    
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    
+    return logger
+```
+
+---
+
+## ARM Linux 平台特定规范
+
+### 性能优化
+
+#### CPU 优化
+- **多核利用**: 使用 `multiprocessing` 并行处理多路摄像头
+- **亲和性设置**: 关键进程绑定到特定核心
+- **进程优先级**: 使用 `nice` 调整优先级（生产环境谨慎）
+- **温度监控**: ARM设备注意散热，高负载时降低处理频率
+
+```python
+import multiprocessing as mp
+
+# 利用多核处理多路摄像头
+def process_camera(camera_id):
+    # 每个摄像头独立进程
+    pass
+
+if __name__ == '__main__':
+    processes = []
+    for cam_id in range(4):
+        p = mp.Process(target=process_camera, args=(cam_id,))
+        p.start()
+        processes.append(p)
+```
+
+#### 内存优化
+- **及时释放**: 大对象使用后立即 `del`，触发GC
+- **图像缓存**: 不要在内存中累积过多帧
+- **模型量化**: 考虑使用INT8量化模型（需重新导出）
+- **内存监控**: 使用 `psutil` 监控内存使用
+
+```python
+import gc
+
+def process_batch(frames):
+    results = model(frames)
+    # 处理结果
+    processed = handle_results(results)
+    
+    # 及时释放大对象
+    del frames
+    del results
+    gc.collect()  # 强制垃圾回收
+    
+    return processed
+```
+
+#### 存储优化
+- **SD卡友好**: 减少写入频率，避免频繁小文件写入
+- **批量写入**: 积累后批量写入磁盘
+- **日志轮转**: 限制日志文件大小和数量
+- **tmpfs**: 临时文件使用 `/tmp`（内存文件系统）
+
+### 系统集成
+
+#### 服务管理
+- **systemd服务**: 生产环境使用systemd管理服务
+- **自动重启**: 配置故障自动重启
+- **日志集成**: 日志输出到journald
+- **环境变量**: 通过环境文件配置
+
+```ini
+# /etc/systemd/system/safehat.service
+[Unit]
+Description=SafeHat AI Detection System
+After=network.target
+
+[Service]
+Type=simple
+User=safehat
+WorkingDirectory=/opt/safehat
+Environment="PYTHONUNBUFFERED=1"
+ExecStart=/usr/bin/python3 app.py
+Restart=on-failure
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target
+```
+
+#### 权限管理
+- **非root运行**: 生产环境不要用root运行
+- **摄像头权限**: 用户需在 `video` 组
+- **文件权限**: 数据目录设置正确的所有者和权限
+- **端口绑定**: 小于1024的端口需要特殊权限
+
+```bash
+# 添加用户到video组
+sudo usermod -aG video $USER
+
+# 设置目录权限
+sudo chown -R safehat:safehat /opt/safehat
+chmod 755 /opt/safehat
+chmod 644 /opt/safehat/data/*
+```
+
+#### 网络配置
+- **防火墙**: 开放必要端口（如5000）
+- **局域网访问**: Flask 使用 `host='0.0.0.0'` 允许外部访问
+- **反向代理**: 生产环境使用Nginx反向代理
+- **HTTPS**: 敏感数据使用HTTPS（考虑使用Let's Encrypt）
+
+### 依赖管理
+
+#### 安装策略
+- **清华镜像**: 默认使用清华PyPI镜像加速
+- **用户安装**: 使用 `--user` 参数，避免权限问题
+- **虚拟环境**: 推荐使用venv隔离环境
+- **离线安装**: 提供离线wheel包方案
+
+```bash
+# 配置清华镜像（永久）
+mkdir -p ~/.pip
+cat > ~/.pip/pip.conf << 'EOF'
+[global]
+index-url = https://pypi.tuna.tsinghua.edu.cn/simple
+trusted-host = pypi.tuna.tsinghua.edu.cn
+EOF
+
+# 创建虚拟环境
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+#### 版本管理
+- **固定版本**: 生产环境固定依赖版本
+- **兼容性**: 注意ARM平台的包兼容性
+- **轻量选择**: 优先选择CPU版PyTorch（体积小4倍）
+- **定期更新**: 安全更新及时应用
+
+```txt
+# requirements.txt - 生产环境版本固定
+ultralytics==8.0.196
+opencv-python==4.8.1.78
+numpy==1.24.3
+torch==2.0.1+cpu
+torchvision==0.15.2+cpu
+flask==2.3.3
+```
+
+---
+
+## 代码规范
+
+### Python 代码风格
+
+#### 命名约定
+- **模块名**: 小写+下划线，如 `alert_manager.py`
+- **类名**: 大驼峰，如 `RealDetectionManager`
+- **函数/变量**: 小写+下划线，如 `get_detection_stats()`
+- **常量**: 大写+下划线，如 `MAX_ALERTS = 100`
+- **私有成员**: 单下划线前缀，如 `_internal_state`
+
+#### 类型注解
+- **函数签名**: 使用类型提示（Python 3.8+）
+- **返回值**: 明确返回类型
+- **可选参数**: 使用 `Optional[T]`
+- **字典结构**: 使用 `TypedDict` 或注释说明
+
+```python
+from typing import List, Dict, Optional, Tuple
+from dataclasses import dataclass
+
+@dataclass
+class DetectionResult:
+    """检测结果数据类"""
+    class_id: int
+    confidence: float
+    bbox: Tuple[int, int, int, int]
+    timestamp: str
+
+def process_frame(frame: np.ndarray, 
+                 threshold: float = 0.5) -> List[DetectionResult]:
+    """
+    处理单帧图像进行检测
+    
+    Args:
+        frame: 输入图像(BGR格式)
+        threshold: 置信度阈值
+    
+    Returns:
+        检测结果列表
+    """
+    results = model(frame, conf=threshold)
+    return parse_results(results)
+```
+
+#### 文档字符串
+- **模块级**: 说明模块用途和主要功能
+- **类文档**: 说明类的职责和使用方式
+- **函数文档**: 说明参数、返回值、可能的异常
+- **使用中文**: 文档字符串使用中文，注释清晰
+
+```python
+"""
+告警管理模块
+
+负责管理系统告警的生成、存储、查询和音频播放。
+支持多种告警类型（安全帽、反光衣、烟雾等）。
+
+主要类:
+    AlertManager: 告警管理器核心类
+"""
+
+class AlertManager:
+    """
+    告警管理器
+    
+    管理所有类型的安全告警，包括：
+    - 告警生成和记录
+    - 告警音频播放
+    - 告警历史查询
+    - 告警统计分析
+    
+    属性:
+        enabled: 告警系统是否启用
+        alerts: 告警记录列表
+        config: 告警配置字典
+    
+    示例:
+        >>> manager = AlertManager()
+        >>> manager.add_alert('helmet', '摄像头1', '未佩戴安全帽')
+    """
+    pass
+```
+
+### 前端代码规范
+
+#### JavaScript 规范
+- **ES6+**: 使用现代JavaScript特性
+- **const/let**: 不使用 `var`
+- **箭头函数**: 优先使用箭头函数
+- **模板字符串**: 使用反引号模板字符串
+- **async/await**: 异步操作使用 async/await
+
+```javascript
+// 好的做法
+const fetchDetectionData = async () => {
+    try {
+        const response = await fetch('/api/detection/stats');
+        const data = await response.json();
+        
+        if (data.success) {
+            updateUI(data.data);
+        } else {
+            showError(data.error);
+        }
+    } catch (error) {
+        console.error('获取数据失败:', error);
+    }
+};
+
+// 使用箭头函数和解构
+const updateStats = ({ helmet, vest, smoke }) => {
+    document.getElementById('helmet-count').textContent = helmet;
+    document.getElementById('vest-count').textContent = vest;
+    document.getElementById('smoke-count').textContent = smoke;
+};
+```
+
+#### ECharts 图表
+- **按需引入**: 只引入需要的图表类型
+- **响应式**: 使用 `chart.resize()` 处理窗口变化
+- **主题**: 使用统一的图表主题
+- **性能**: 大数据量使用数据采样或分段加载
+
+```javascript
+// ECharts 图表初始化
+const initChart = (elementId) => {
+    const chart = echarts.init(document.getElementById(elementId));
+    
+    const option = {
+        backgroundColor: 'transparent',
+        tooltip: { trigger: 'axis' },
+        xAxis: { type: 'category', data: [] },
+        yAxis: { type: 'value' },
+        series: [{ type: 'line', data: [] }]
+    };
+    
+    chart.setOption(option);
+    
+    // 响应式
+    window.addEventListener('resize', () => chart.resize());
+    
+    return chart;
+};
+```
+
+#### CSS 规范
+- **TailwindCSS**: 优先使用Tailwind工具类
+- **自定义样式**: 放在 `static/css/custom.css`
+- **命名**: 使用BEM命名规范（如需自定义类）
+- **深色主题**: 注意深色模式适配
+
+---
+
+## 测试规范
+
+### 单元测试
+- **pytest**: 使用pytest作为测试框架
+- **覆盖率**: 关键模块测试覆盖率>80%
+- **隔离性**: 测试间相互独立，可并行运行
+- **mock**: 使用mock模拟外部依赖（摄像头、模型）
+
+```python
+import pytest
+from unittest.mock import Mock, patch
+
+@pytest.fixture
+def mock_camera():
+    """模拟摄像头"""
+    camera = Mock()
+    camera.isOpened.return_value = True
+    camera.read.return_value = (True, np.zeros((480, 640, 3), dtype=np.uint8))
+    return camera
+
+def test_detection_manager_init(mock_camera):
+    """测试检测管理器初始化"""
+    with patch('cv2.VideoCapture', return_value=mock_camera):
+        manager = RealDetectionManager()
+        assert manager is not None
+        assert manager.model is not None
+
+def test_detection_process():
+    """测试检测流程"""
+    manager = RealDetectionManager()
+    frame = np.zeros((480, 640, 3), dtype=np.uint8)
+    
+    results = manager.detect(frame)
+    
+    assert isinstance(results, list)
+    assert all(isinstance(r, DetectionResult) for r in results)
+```
+
+### 集成测试
+- **端到端**: 测试完整的检测流程
+- **API测试**: 使用Flask test client测试API
+- **性能测试**: 测试帧率和延迟
+- **压力测试**: 测试长时间运行稳定性
+
+```python
+def test_api_detection_stats(client):
+    """测试检测统计API"""
+    response = client.get('/api/detection/stats')
+    
+    assert response.status_code == 200
+    data = response.get_json()
+    
+    assert data['success'] is True
+    assert 'helmet' in data['data']
+    assert 'vest' in data['data']
+    assert isinstance(data['data']['helmet'], int)
+```
+
+### 性能测试
+- **基准测试**: 记录基准性能指标
+- **回归测试**: 防止性能退化
+- **资源监控**: 监控CPU、内存、温度
+- **压力测试**: 模拟多路摄像头同时工作
+
+```python
+import time
+import psutil
+
+def test_detection_performance():
+    """测试检测性能"""
+    manager = RealDetectionManager()
+    frame = np.zeros((480, 640, 3), dtype=np.uint8)
+    
+    # 预热
+    for _ in range(10):
+        manager.detect(frame)
+    
+    # 测试
+    start = time.time()
+    for _ in range(100):
+        manager.detect(frame)
+    elapsed = time.time() - start
+    
+    fps = 100 / elapsed
+    assert fps >= 5, f"FPS太低: {fps:.2f}, 期望>=5"
+    
+    # 内存检查
+    process = psutil.Process()
+    memory_mb = process.memory_info().rss / 1024 / 1024
+    assert memory_mb < 500, f"内存占用过高: {memory_mb:.1f}MB"
+```
+
+---
+
+## 部署检查清单
+
+### 部署前检查
+
+- [ ] 所有测试通过
+- [ ] 日志级别设置为INFO或WARNING
+- [ ] 删除调试代码和print语句
+- [ ] 配置文件使用生产环境配置
+- [ ] 依赖版本固定（requirements.txt）
+- [ ] 静态文件路径正确
+- [ ] 数据目录权限正确
+- [ ] 摄像头权限配置（video组）
+- [ ] systemd服务文件准备好
+- [ ] 防火墙规则配置
+
+### 运行时监控
+
+- [ ] CPU使用率 < 80%
+- [ ] 内存使用 < 2GB
+- [ ] 检测帧率 >= 3 FPS
+- [ ] API响应时间 < 200ms
+- [ ] 磁盘空间充足（>2GB）
+- [ ] 日志正常滚动
+- [ ] 告警音频正常播放
+- [ ] Web界面响应正常
+
+### 故障排查
+
+1. **摄像头无法打开**
+   - 检查设备文件：`ls -l /dev/video*`
+   - 检查权限：`groups` 查看是否在video组
+   - 测试摄像头：`v4l2-ctl --list-devices`
+
+2. **检测速度慢**
+   - 降低输入分辨率
+   - 减少检测频率（跳帧）
+   - 检查CPU温度：`cat /sys/class/thermal/thermal_zone*/temp`
+   - 关闭不必要的后台进程
+
+3. **内存占用高**
+   - 检查是否有内存泄漏
+   - 减少告警历史记录数量
+   - 及时释放大对象
+   - 强制垃圾回收
+
+4. **API无响应**
+   - 检查Flask进程：`ps aux | grep python`
+   - 查看日志：`journalctl -u safehat -f`
+   - 检查端口占用：`netstat -tlnp | grep 5000`
+   - 测试本地连接：`curl http://localhost:5000`
+
+---
+
+## 版本控制
+
+### Git 提交规范
+
+#### 提交信息格式
+
+```
+<类型>(<范围>): <简短描述>
+
+<详细描述>
+
+<相关Issue>
+```
+
+**类型**:
+- `feat`: 新功能
+- `fix`: 修复bug
+- `perf`: 性能优化
+- `refactor`: 重构（不改变功能）
+- `docs`: 文档更新
+- `style`: 代码格式（不影响逻辑）
+- `test`: 测试相关
+- `chore`: 构建/工具相关
+
+**示例**:
+```
+feat(detection): 添加烟雾检测功能
+
+- 实现YOLOv8烟雾检测模型加载
+- 添加烟雾告警音频
+- 更新前端展示烟雾检测统计
+
+Closes #23
+```
+
+#### 分支策略
+- `main`: 生产环境代码，保持稳定
+- `develop`: 开发分支，日常开发
+- `feature/*`: 新功能分支
+- `bugfix/*`: bug修复分支
+- `hotfix/*`: 紧急修复分支
+
+#### 忽略文件
+确保 `.gitignore` 包含：
+```
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+
+# 模型文件
+*.pt
+!yolov8n.pt  # 保留预训练模型
+
+# 数据文件
+alert_screenshots/
+data/alerts.db
+logs/
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+```
+
+---
+
+## 安全规范
+
+### 敏感信息
+- **不要硬编码**: API密钥、密码等使用环境变量
+- **配置分离**: 敏感配置放在 `.env` 文件（不提交）
+- **权限最小化**: 服务账户只给必要权限
+- **日志脱敏**: 不要在日志中记录敏感信息
+
+```python
+import os
+from dotenv import load_dotenv
+
+load_dotenv()  # 加载 .env 文件
+
+# 从环境变量读取配置
+SECRET_KEY = os.getenv('SECRET_KEY', 'dev-key-change-in-production')
+ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD')
+```
+
+### 输入验证
+- **文件上传**: 验证文件类型和大小
+- **API参数**: 验证参数类型和范围
+- **SQL注入**: 使用参数化查询（如使用SQLite）
+- **XSS防护**: 前端显示用户输入时转义
+
+```python
+from werkzeug.utils import secure_filename
+
+ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'png'}
+MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route('/api/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return jsonify({'error': '没有文件'}), 400
+    
+    file = request.files['file']
+    
+    if not allowed_file(file.filename):
+        return jsonify({'error': '文件类型不允许'}), 400
+    
+    if len(file.read()) > MAX_FILE_SIZE:
+        return jsonify({'error': '文件太大'}), 400
+    
+    filename = secure_filename(file.filename)
+    # 保存文件...
+```
+
+---
+
+## 文档规范
+
+### 代码注释
+- **关键逻辑**: 复杂算法必须注释说明
+- **参数说明**: 非显而易见的参数说明其含义
+- **TODO标记**: 临时方案标注TODO和原因
+- **使用中文**: 所有注释使用中文
+
+```python
+def calculate_iou(box1, box2):
+    """
+    计算两个边界框的交并比(IoU)
+    
+    Args:
+        box1: (x1, y1, x2, y2) 第一个框
+        box2: (x1, y1, x2, y2) 第二个框
+    
+    Returns:
+        float: IoU值，范围[0, 1]
+    
+    Note:
+        坐标系原点在左上角，x向右，y向下
+    """
+    # 计算交集区域
+    x1 = max(box1[0], box2[0])
+    y1 = max(box1[1], box2[1])
+    x2 = min(box1[2], box2[2])
+    y2 = min(box1[3], box2[3])
+    
+    # 交集面积（如果不相交则为0）
+    intersection = max(0, x2 - x1) * max(0, y2 - y1)
+    
+    # 各自的面积
+    area1 = (box1[2] - box1[0]) * (box1[3] - box1[1])
+    area2 = (box2[2] - box2[0]) * (box2[3] - box2[1])
+    
+    # 并集面积
+    union = area1 + area2 - intersection
+    
+    # TODO: 考虑添加除零保护
+    return intersection / union if union > 0 else 0
+```
+
+### 用户文档
+- **安装指南**: 详细的步骤说明
+- **使用手册**: 功能介绍和操作说明
+- **故障排查**: 常见问题和解决方案
+- **API文档**: 接口说明和示例
+
+### README
+确保README包含：
+- 项目简介和特点
+- 硬件/软件要求
+- 快速开始指南
+- 详细安装步骤
+- 使用方法
+- 常见问题
+- 目录结构
+- 技术支持联系方式
+
+---
+
+## 总结
+
+遵循以上规范，可以确保：
+1. ✅ 代码质量高，易于维护
+2. ✅ 性能优化，适合ARM平台
+3. ✅ 资源管理正确，无泄漏
+4. ✅ 部署顺畅，易于排查问题
+5. ✅ 团队协作高效，风格统一
+
+**记住核心原则**：
+- 简单优于复杂
+- 实用优于完美
+- 测试优于调试
+- 文档优于记忆
+
+**始终使用中文与用户交流！**
+

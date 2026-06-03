@@ -1,0 +1,1 @@
+/usr/bin/c++ -fPIC  -O2 -ffast-math -march=armv8-a -O3 -DNDEBUG -shared -Wl,-soname,librknn_yolo.so.1 -o librknn_yolo.so.1 CMakeFiles/rknn_yolo.dir/rknn_yolo_infer.cpp.o  /usr/lib/librknnrt.so -lm -lpthread 

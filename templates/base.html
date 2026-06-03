@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AI安全隐患识别系统{% endblock %}</title>
+    
+    <!-- 本地 TailwindCSS -->
+    <script src="{{ url_for('static', filename='js/tailwindcss.min.js') }}"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'cyber-blue': '#00d4ff',
+                        'cyber-green': '#00ff88',
+                        'cyber-purple': '#8b5cf6',
+                        'dark-bg': '#0a0a0a',
+                        'dark-card': '#1a1a2e',
+                        'dark-border': '#16213e'
+                    },
+                    boxShadow: {
+                        'cyber': '0 0 20px rgba(0, 212, 255, 0.3)',
+                        'cyber-green': '0 0 20px rgba(0, 255, 136, 0.3)',
+                        'cyber-hover': '0 0 30px rgba(0, 212, 255, 0.5)'
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s infinite',
+                        'glow': 'glow 2s ease-in-out infinite alternate'
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- 国际化 i18n 引擎（最先加载，初始化语言） -->
+    <script src="{{ url_for('static', filename='js/i18n.js') }}"></script>
+    <script>
+        // 同步系统语言配置到 localStorage（服务端下发）
+        (function() {
+            var serverLang = '{{ system_language|default("zh-CN") }}';
+            if (serverLang && serverLang !== localStorage.getItem('safehat_language')) {
+                localStorage.setItem('safehat_language', serverLang);
+                if (window.i18n) window.i18n.setLang(serverLang);
+            }
+        })();
+    </script>
+
+    <!-- 本地 ECharts -->
+    <script src="{{ url_for('static', filename='js/echarts.min.js') }}"></script>
+    
+    <!-- 本地自定义样式 -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-dark-bg text-white min-h-screen">
+    {% block content %}{% endblock %}
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

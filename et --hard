@@ -1,0 +1,91 @@
+[33m53cbf59[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m)[m Merge branch 'main' of ssh://ssh.github.com:443/JinYu-Miao/safehat
+[33mb8f11ad[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m 偷盗检测
+[33m4693919[m merge remote main into local
+[33m9736ed6[m 偷盗检测
+[33m2614124[m Merge branch 'main' of ssh://ssh.github.com:443/JinYu-Miao/safehat
+[33md10a594[m 偷盗检测
+[33maaf1036[m merge local changes
+[33me0767d2[m 偷盗检测
+[33m4da8603[m 优化文件结构
+[33mc6d70e4[m 删除运行时候无用文件
+[33m9ce8b1d[m 摄像头卡死修复
+[33m4636001[m 摄像头卡死修复
+[33m55449fe[m 摄像头卡死修复
+[33m4b5a208[m 摄像头卡死修复
+[33mdfed7f1[m 摄像头卡死修复
+[33mdfbf00d[m 摄像头卡死修复
+[33m6192dc2[m 阈值卡死修复
+[33me9887a1[m 报警声音优化
+[33m4eaf913[m 报警声音优化
+[33m5ee94c1[m 处理进度界面优化
+[33m17ab700[m 处理进度界面优化
+[33mc9ea3da[m 累计排行
+[33mdde8ba8[m 报警逻辑修改
+[33m423d5e0[m 网络配置修改
+[33ma70ff48[m 网络配置修改
+[33m21fd96c[m 网络配置修改
+[33ma4834aa[m 网络配置修改
+[33ma053bdd[m 网络配置修改
+[33mf951055[m 网络配置修改
+[33mcec45cf[m 大修改
+[33mdbe0b0b[m 大修改
+[33maff8568[m 添加开发单位
+[33m95d42e7[m 登录界面删掉不必要的字
+[33m76e21ab[m 大修改
+[33mddb7906[m 大修改
+[33mdabad39[m 摄像头检测线程修复
+[33md035a3d[m 中文显示问题
+[33me74ccb6[m 中文显示问题
+[33m1ed0684[m 中文显示问题
+[33m8af2d75[m 中文显示问题
+[33mb88334e[m 修复删视频的逻辑
+[33mda31121[m 修复删视频的逻辑
+[33m582c600[m 优化萤石的逻辑
+[33m8485dc6[m 优化萤石的逻辑
+[33m7ab1013[m 登录
+[33mf096336[m 登录
+[33md9db4dc[m 萤石修复
+[33m4572f8c[m 警告去重
+[33mb567978[m 警告去重
+[33mf66e1ae[m 视频播放速度调整
+[33mbc76329[m 视频播放速度调整
+[33m62df6b1[m rtsp线程优化
+[33m69feecf[m Revert "ignore local models and update configs"
+[33m88bf943[m ignore local models and update configs
+[33m0c68e5b[m rtsp线程优化
+[33m7f7233e[m rtsp线程优化
+[33mc192bff[m rtsp线程优化
+[33mcd19939[m rtsp线程优化
+[33m11ef07f[m 日期选择
+[33m8cbdc72[m 日期选择
+[33m2b9c544[m 日期选择
+[33ma7b5c5a[m 模型上传更新
+[33mf10d797[m 模型上传更新
+[33mfe251d9[m 模型上传更新
+[33m1be52f4[m 模型上传更新
+[33mc01a51e[m 模型上传更新
+[33m273fba5[m 模型上传更新
+[33ma3470d4[m 模型上传更新
+[33m2f75a1b[m 模型上传更新
+[33me7971da[m 设置告警弹窗
+[33mb00e50c[m 修改ip
+[33mfb39a45[m 修改ip
+[33mc6fd809[m 修改ip
+[33m566f753[m 修改ip
+[33mdc7567e[m 修改ip
+[33mf9778e6[m 修改ip
+[33maca6e0e[m 修改ip
+[33md51597d[m 修改ip
+[33mbda02c7[m 修改ip
+[33m86f786e[m 修改ip
+[33m3970aca[m 修改ip
+[33mb573d47[m 修改ip
+[33m2dfbdca[m 新增网络修改页面
+[33mce004bf[m Merge remote-tracking branch 'origin/main'
+[33m17654e4[m 新增网络配置页面
+[33m05d0d90[m stop tracking models directory
+[33m2a7738d[m C++部分接口重新定义
+[33mb0ff17d[m C++部分接口重新定义
+[33m86ede62[m stop tracking models directory
+[33m1294eef[m 版本测试
+[33ma05303f[m[33m ([m[1;34mgrafted[m[33m)[m 版本测试

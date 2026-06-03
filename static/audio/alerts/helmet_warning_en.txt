@@ -1,0 +1,36 @@
+# 英文告警语音: helmet_warning
+
+告警文本: Warning! Helmet not detected. Please wear safety helmet immediately.
+
+## 如何生成音频文件
+
+可使用在线 TTS（文字转语音）服务生成告警音频：
+
+### 推荐在线工具:
+1. Google Cloud Text-to-Speech: https://cloud.google.com/text-to-speech
+2. Amazon Polly: https://aws.amazon.com/polly/
+3. TTSMaker (免费): https://ttsmaker.com/
+4. Natural Reader: https://www.naturalreaders.com/online/
+
+### 使用方法:
+1. 复制上方的"告警文本"
+2. 访问在线TTS工具
+3. 选择英语（美音或英音）
+4. 粘贴文本并生成
+5. 下载MP3文件
+6. 重命名为 helmet_warning_en.mp3
+7. 放置到 static/audio/alerts 目录
+
+## 快速生成（使用Python脚本）
+
+```bash
+# 回到项目根目录
+cd ../../../
+
+# 运行生成脚本
+python generate_alert_audio_en.py
+```
+
+## 备用方案
+
+如果没有MP3文件，系统将使用浏览器的文字转语音(TTS)功能进行播报。

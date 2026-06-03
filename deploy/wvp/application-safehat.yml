@@ -1,0 +1,70 @@
+spring:
+  application:
+    name: wvp
+  profiles:
+    active: safehat
+  mvc:
+    async:
+      request-timeout: 20000
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 100MB
+  cache:
+    type: redis
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      database: 7
+      password:
+      timeout: 10000
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/wvp?useUnicode=true&characterEncoding=UTF8&rewriteBatchedStatements=true&serverTimezone=PRC&useSSL=false&allowMultiQueries=true&allowPublicKeyRetrieval=true
+    username: wvp
+    password: wvp123456
+
+server:
+  port: 18080
+  ssl:
+    enabled: false
+
+sip:
+  # RK board LAN IP for GB28181 SIP signaling.
+  ip: 192.168.1.17
+  # GB28181 devices register to this SIP port on the RK board.
+  port: 15060
+  # Domain is usually the first 10 digits of the SIP server ID.
+  domain: 3402000000
+  id: 34020000002000000001
+  password: safehat123456
+  alarm: false
+
+media:
+  id: zlmediakit-local
+  # RK board LAN IP. Cameras/NVRs must be able to reach this address.
+  ip: 192.168.1.17
+  http-port: 8080
+  # Must match Release/config.ini [api] secret.
+  secret: eECYnFPVN66GI3b0g7mvXNtSF5rkR4xk
+  rtp:
+    enable: true
+    port-range: 40000,45000
+    send-port-range: 50000,55000
+
+user-settings:
+  play-timeout: 180000
+  auto-apply-play: true
+  record-push-live: false
+  record-sip: false
+  stream-on-demand: false
+  disable-date-header: false
+  interface-authentication: true
+  interface-authentication-excludes:
+    - /api/v1/**
+
+logging:
+  level:
+    root: info

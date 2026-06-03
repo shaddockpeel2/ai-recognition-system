@@ -1,0 +1,10 @@
+{
+  "users": [
+    {
+      "username": "admin",
+      "password_hash": "scrypt:32768:8:1$0UHNkhcI7i9nytRD$b32cdc3b832c83bcbcae5de7e888648a7656f7a974dc2e186bff48ccc01655c156e38daa328d6211f514825d0931057a0eb03c98127e3b5632226fc37283381c",
+      "created_at": "2026-03-30T11:21:17.750281",
+      "updated_at": "2026-06-01T12:21:17.487035"
+    }
+  ]
+}

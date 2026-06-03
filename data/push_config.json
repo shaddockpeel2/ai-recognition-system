@@ -1,0 +1,165 @@
+{
+  "targets": [
+    {
+      "id": "push_e043d1d1",
+      "name": "实验室",
+      "enabled": false,
+      "type": "app",
+      "connection": {
+        "method": "webhook",
+        "url": "http://121.41.93.105:5000/webhook"
+      },
+      "filter": {
+        "alert_types": [],
+        "risk_levels": [],
+        "video_sources": [],
+        "time_range": {
+          "enabled": false
+        }
+      },
+      "retry": {
+        "enabled": true,
+        "max_retries": 3,
+        "retry_interval": 5
+      },
+      "rate_limit": {
+        "enabled": true,
+        "max_per_minute": 10
+      }
+    },
+    {
+      "id": "push_1f2291ba",
+      "name": "mdtest",
+      "enabled": false,
+      "type": "modbus",
+      "connection": {
+        "type": "rtu",
+        "slave_id": 1,
+        "serial_port": "/dev/ttyS5",
+        "baudrate": 115200,
+        "bytesize": 8,
+        "parity": "N",
+        "stopbits": 1,
+        "timeout": 3
+      },
+      "filter": {
+        "alert_types": [],
+        "risk_levels": [],
+        "video_sources": [],
+        "time_range": {
+          "enabled": false
+        }
+      },
+      "retry": {
+        "enabled": true,
+        "max_retries": 3,
+        "retry_interval": 5
+      },
+      "rate_limit": {
+        "enabled": true,
+        "max_per_minute": 10
+      }
+    },
+    {
+      "id": "push_609e6a55",
+      "name": "uarttest",
+      "enabled": false,
+      "type": "uart",
+      "connection": {
+        "port": "/dev/ttyS7",
+        "baudrate": 115200,
+        "bytesize": 8,
+        "parity": "N",
+        "stopbits": 1,
+        "timeout": 1
+      },
+      "filter": {
+        "alert_types": [],
+        "risk_levels": [],
+        "video_sources": [],
+        "time_range": {
+          "enabled": false
+        }
+      },
+      "retry": {
+        "enabled": true,
+        "max_retries": 3,
+        "retry_interval": 5
+      },
+      "rate_limit": {
+        "enabled": true,
+        "max_per_minute": 10
+      }
+    },
+    {
+      "id": "push_90b7810a",
+      "name": "mqtttest",
+      "enabled": false,
+      "type": "mqtt",
+      "connection": {
+        "method": "mqtt",
+        "broker": "192.168.1.12",
+        "port": 1883,
+        "topic": "safehat",
+        "client_id": "",
+        "username": "",
+        "password": "",
+        "ping_interval": 20,
+        "log_level": "DEBUG",
+        "unique_subscribe": true
+      },
+      "filter": {
+        "alert_types": [],
+        "risk_levels": [],
+        "video_sources": [],
+        "time_range": {
+          "enabled": false
+        }
+      },
+      "retry": {
+        "enabled": true,
+        "max_retries": 3,
+        "retry_interval": 5
+      },
+      "rate_limit": {
+        "enabled": true,
+        "max_per_minute": 10
+      }
+    },
+    {
+      "id": "push_8dc44c38",
+      "name": "mqtt2",
+      "enabled": false,
+      "type": "mqtt",
+      "connection": {
+        "method": "mqtt",
+        "broker": "192.168.1.12",
+        "port": 1883,
+        "topic": "safehat",
+        "client_id": "",
+        "username": "",
+        "password": "",
+        "ping_interval": 20,
+        "log_level": "DEBUG",
+        "unique_subscribe": true
+      },
+      "filter": {
+        "alert_types": [],
+        "risk_levels": [],
+        "video_sources": [],
+        "time_range": {
+          "enabled": false
+        }
+      },
+      "retry": {
+        "enabled": true,
+        "max_retries": 3,
+        "retry_interval": 5
+      },
+      "rate_limit": {
+        "enabled": true,
+        "max_per_minute": 10
+      }
+    }
+  ]
+}
